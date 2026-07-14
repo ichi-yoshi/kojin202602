@@ -1,6 +1,7 @@
 #include "AppFrame.h"
 #include "ApplicationMain.h"
 #include "ModeGame.h"
+#include "Resource.h"
 
 static int prevMouseX = -1, prevMouseY = -1;
 static float camYaw = 0.0f, camPitch = 0.0f;
@@ -13,7 +14,7 @@ bool ModeGame::Initialize() {
 	_cam.Initialize();
 
 	// モデルデータのロード（テクスチャも読み込まれる）
-	_handle = MV1LoadModel("res/SDChar/SDChar.mv1");
+	_handle = MV1LoadModel(mv1::Chara);
 	_attach_index = -1;		// アニメーションアタッチはされていない
 	// ステータスを「無し」に設定
 	_status = STATUS::NONE;
@@ -25,15 +26,15 @@ bool ModeGame::Initialize() {
 	_vDir = VGet(0, 0, -1);		// キャラモデルはデフォルトで-Z方向を向いている
 
 	// マップ
-	_handleSkySphere = MV1LoadModel("res/SkySphere/skysphere.mv1");
+	_handleSkySphere = MV1LoadModel(mv1::SkySphere);
 #if 1
 	// ダンジョン
-	_handleMap = MV1LoadModel("res/map/SM_Stage3_0323.mv1");
-	_frameMapCollision = MV1SearchFrame(_handleMap, "collision");
+	_handleMap = MV1LoadModel(mv1::Map);
+	_frameMapCollision = MV1SearchFrame(_handleMap, collision::MapCollision);
 #else
 	// フィールド
-	_handleMap = MV1LoadModel("res/Ground/Ground.mv1");
-	_frameMapCollision = MV1SearchFrame(_handleMap, "ground_navmesh");
+	_handleMap = MV1LoadModel(mv1::Ground);
+	_frameMapCollision = MV1SearchFrame(_handleMap, collision::GroundNavmesh);
 #endif
 	// コリジョン情報の生成
 	MV1SetupCollInfo(_handleMap, _frameMapCollision, 16, 16, 16);
@@ -111,22 +112,11 @@ bool ModeGame::Process()
 	float sz = camPos.z - camTarget.z;
 	float camrad = atan2(sz, sx);
 
-	// 移動方向を決める
-	VECTOR v = { 0,0,0 };
+	// 移動量の初期化
 	float mvSpeed = 6.f;
 	
-	// 常に移動可能
-	if (key & PAD_INPUT_5) { v.x = 1; }
-	if (key & PAD_INPUT_8) { v.x = -1; }
-	if (key & PAD_INPUT_4) { v.z = -1; }
-	if (key & PAD_INPUT_6) { v.z = 1; }
-
-	// vをrad分回転させる
-	float length = 0.f;
-	if (VSize(v) > 0.f) { length = mvSpeed; }
-	float rad = atan2(v.z, v.x);
-	v.x = cos(rad + camrad) * length;
-	v.z = sin(rad + camrad) * length;
+	_mouseInput.Update(key, camrad, mvSpeed);
+	VECTOR v = _mouseInput.GetMovementVector();
 
 	// 移動前の位置を保存
 	VECTOR oldvPos = _vPos;
@@ -138,12 +128,18 @@ bool ModeGame::Process()
 		0, -10, 10, -20, 20, -30, 30, -40, 40, -50, 50, -60, 60, -70, 70, -80, 80,
 	};
 
-	for (int i = 0; i < sizeof(escapeTbl) / sizeof(escapeTbl[0]); i++) 
+	// 元の入力から基準となるラジアンを逆算（コリジョン回避スライド計算用）
+	float rad = atan2(oldv.z, oldv.x) - camrad;
+
+	for(int i = 0; i < sizeof(escapeTbl) / sizeof(escapeTbl[0]); i++)
 	{
+		// 入力がない（移動していない）場合はコリジョン補正のループを回す必要がない
+		if(!_mouseInput.IsMoving()) { break; }
+
 		// escapeTbl[i]の分だけ移動量v回転
 		float escape_rad = DEG2RAD(escapeTbl[i]);
-		v.x = cos(rad + camrad + escape_rad) * length;
-		v.z = sin(rad + camrad + escape_rad) * length;
+		v.x = cos(rad + camrad + escape_rad) * mvSpeed;
+		v.z = sin(rad + camrad + escape_rad) * mvSpeed;
 
 		// vの分移動
 		_vPos = VAdd(_vPos, v);
@@ -154,16 +150,11 @@ bool ModeGame::Process()
 		// 主人公の腰位置から下方向への直線
 		hitPoly = MV1CollCheck_Line(_handleMap, _frameMapCollision,
 			VAdd(_vPos, VGet(0, _colSubY, 0)), VAdd(_vPos, VGet(0, -99999.f, 0)));
-		if (hitPoly.HitFlag) 
+		if(hitPoly.HitFlag)
 		{
 			// 当たった
-			// 当たったY位置をキャラ座標にする
 			_vPos.y = hitPoly.HitPosition.y;
-
-			// キャラが上下に移動した量だけ、移動量を修正
 			v.y += _vPos.y - oldvPos.y;
-
-			// ループiから抜ける
 			break;
 		}
 		else
@@ -285,7 +276,7 @@ bool ModeGame::Render()
 	// マップモデルを描画する
 	{
 		MV1DrawModel(_handleMap);
-		MV1DrawModel(_handleSkySphere);
+		//MV1DrawModel(_handleSkySphere);
 	}
 
 	return true;

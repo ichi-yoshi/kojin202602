@@ -1,6 +1,6 @@
-
 #include "appframe.h"
 #include "CameraBase.h"
+#include "MouseInput.h"
 #include <string>
 
 // 計算用マクロ
@@ -51,4 +51,6 @@ protected:
 
 	// デバッグ用
 	bool	_bViewCollision;
+
+	MouseInput  _mouseInput;
 }; 
