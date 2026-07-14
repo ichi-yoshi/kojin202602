@@ -1,0 +1,11 @@
+﻿  ApplicationBase.cpp
+  Physics.cpp
+D:\ichimurayoshiharucr0005\kojin202602\AppFrame\source\Application\Physics.cpp(266,34): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+D:\ichimurayoshiharucr0005\kojin202602\AppFrame\source\Application\Physics.cpp(399,21): warning C4305: 'return': 'double' から 'float' へ切り詰めます。
+D:\ichimurayoshiharucr0005\kojin202602\AppFrame\source\Application\Physics.cpp(406,20): warning C4305: '初期化中': 'double' から 'float' へ切り詰めます。
+  WinMain.cpp
+  CFile.cpp
+  ModeBase.cpp
+  ModeServer.cpp
+  コードを生成中...
+  AppFrame.vcxproj -> D:\ichimurayoshiharucr0005\kojin202602\Game\x64\Debug\AppFrame.lib

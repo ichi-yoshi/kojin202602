@@ -1,0 +1,9 @@
+﻿  ModeGame.cpp
+D:\ichimurayoshiharucr0005\kojin202602\Game\Game\source\ModeGame.cpp(112,15): warning C4244: '初期化中': 'double' から 'float' への変換です。データが失われる可能性があります。
+D:\ichimurayoshiharucr0005\kojin202602\Game\Game\source\ModeGame.cpp(127,12): warning C4244: '初期化中': 'double' から 'float' への変換です。データが失われる可能性があります。
+D:\ichimurayoshiharucr0005\kojin202602\Game\Game\source\ModeGame.cpp(128,26): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+D:\ichimurayoshiharucr0005\kojin202602\Game\Game\source\ModeGame.cpp(129,26): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+D:\ichimurayoshiharucr0005\kojin202602\Game\Game\source\ModeGame.cpp(145,40): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+D:\ichimurayoshiharucr0005\kojin202602\Game\Game\source\ModeGame.cpp(146,40): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+D:\ichimurayoshiharucr0005\kojin202602\Game\Game\source\ModeGame.cpp(273,17): warning C4244: '=': 'double' から 'float' への変換です。データが失われる可能性があります。
+  Game.vcxproj -> D:\ichimurayoshiharucr0005\kojin202602\Game\x64\Debug\Game.exe
