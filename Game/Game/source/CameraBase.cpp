@@ -1,11 +1,6 @@
 #include "CameraBase.h"
 #include "ApplicationMain.h"
 
-// 定数定義
-const float CameraBase::FPS_CAMERA_HEIGHT = 100.0f;
-const int CameraBase::SCREEN_CENTER_X = 1920 / 2;
-const int CameraBase::SCREEN_CENTER_Y = 1080 / 2;
-
 CameraBase::CameraBase()
 {
 	_vPos = VGet(0, 90.f, -300.f);
@@ -16,8 +11,7 @@ CameraBase::CameraBase()
 	_prevMouseY = -1;
 	_camYaw = 0.0f;
 	_camPitch = 0.0f;
-	_mouseSensitivity = 0.005f;
-
+	_mouseSensitivity = 0.002f;
 }
 
 CameraBase::~CameraBase()
@@ -39,6 +33,10 @@ bool CameraBase::Initialize()
     _camYaw = 0.0f;
     _camPitch = 0.0f;
 
+	// マウス感度の設定
+	_mouseSensitivity = 0.002f;
+
+	// マウスカーソルを非表示にする
     SetMouseDispFlag(FALSE);
 
     return true;

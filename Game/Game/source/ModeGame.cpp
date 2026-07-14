@@ -3,12 +3,8 @@
 #include "ModeGame.h"
 #include "Resource.h"
 
-static int prevMouseX = -1, prevMouseY = -1;
-static float camYaw = 0.0f, camPitch = 0.0f;
-
-ModeGame _modeGame;
-
-bool ModeGame::Initialize() {
+bool ModeGame::Initialize() 
+{
 	if (!base::Initialize()) { return false; }
 
 	_cam.Initialize();
@@ -27,15 +23,9 @@ bool ModeGame::Initialize() {
 
 	// マップ
 	_handleSkySphere = MV1LoadModel(mv1::SkySphere);
-#if 1
-	// ダンジョン
 	_handleMap = MV1LoadModel(mv1::Map);
 	_frameMapCollision = MV1SearchFrame(_handleMap, collision::MapCollision);
-#else
-	// フィールド
-	_handleMap = MV1LoadModel(mv1::Ground);
-	_frameMapCollision = MV1SearchFrame(_handleMap, collision::GroundNavmesh);
-#endif
+
 	// コリジョン情報の生成
 	MV1SetupCollInfo(_handleMap, _frameMapCollision, 16, 16, 16);
 	// コリジョンのフレームを描画しない設定
@@ -45,7 +35,6 @@ bool ModeGame::Initialize() {
 
 	// その他初期化
 	_bViewCollision = TRUE;
-	SetMouseDispFlag(FALSE);
 
 	return true;
 }
@@ -56,43 +45,17 @@ bool ModeGame::Terminate()
 	return true;
 }
 
-// ゲームリセット機能の実装
-void ModeGame::ResetGame()
-{
-	// カメラの初期化
-	_cam.Initialize();
-
-	// キャラクター位置のリセット
-	_vPos = VGet(0, 0, 0);
-	_vDir = VGet(0, 0, -1);
-
-	// ステータスのリセット
-	_status = STATUS::NONE;
-	_total_time = 0.f;
-	_play_time = 0.0f;
-
-	// アニメーションのリセット
-	if (_attach_index != -1)
-	{
-		MV1DetachAnim(_handle, _attach_index);
-		_attach_index = -1;
-	}
-
-	// マウス位置のリセット
-	const int centerX = 1920 / 2;
-	const int centerY = 1080 / 2;
-	SetMousePoint(centerX, centerY);
-	prevMouseX = centerX;
-	prevMouseY = centerY;
-
-	// カメラ角度のリセット
-	camYaw = 0.0f;
-	camPitch = 0.0f;
-}
-
 bool ModeGame::Process() 
 {
 	base::Process();
+	
+	// キャラ移動処理
+	CharaMovement();
+	return true;
+}
+
+bool ModeGame::CharaMovement()
+{
 	int key = ApplicationMain::GetInstance()->GetKey();
 	int trg = ApplicationMain::GetInstance()->GetTrg();
 
@@ -114,7 +77,7 @@ bool ModeGame::Process()
 
 	// 移動量の初期化
 	float mvSpeed = 6.f;
-	
+
 	_mouseInput.Update(key, camrad, mvSpeed);
 	VECTOR v = _mouseInput.GetMovementVector();
 
@@ -123,7 +86,7 @@ bool ModeGame::Process()
 	VECTOR oldv = v;
 
 	// コリジョン判定で引っかかった時に、escapeTbl[]順に角度を変えて回避を試みる
-	float escapeTbl[] = 
+	float escapeTbl[] =
 	{
 		0, -10, 10, -20, 20, -30, 30, -40, 40, -50, 50, -60, 60, -70, 70, -80, 80,
 	};
@@ -166,49 +129,49 @@ bool ModeGame::Process()
 	}
 
 	// 移動量をそのままキャラの向きにする
-	if (VSize(v) > 0.f) 
+	if(VSize(v) > 0.f)
 	{		// 移動していない時は無視するため
 		_vDir = v;
 		_status = STATUS::WALK;
 	}
-	else 
+	else
 	{
 		_status = STATUS::WAIT;
 	}
 
 	// デバッグ機能
-	if (trg & PAD_INPUT_1)
+	if(trg & PAD_INPUT_1)
 	{
 		_bViewCollision = !_bViewCollision;
 	}
-	if (_bViewCollision)
+	if(_bViewCollision)
 	{
 		MV1SetFrameVisible(_handleMap, _frameMapCollision, FALSE);
 	}
-	else 
+	else
 	{
 		MV1SetFrameVisible(_handleMap, _frameMapCollision, TRUE);
 	}
-	
+
 	// ステータスが変わっていないか？
-	if (oldStatus == _status) 
+	if(oldStatus == _status)
 	{
 		// 再生時間を進める
 		_play_time += 0.5f;
 	}
-	else 
+	else
 	{
 		// アニメーションがアタッチされていたら、デタッチする
-		if (_attach_index != -1) 
+		if(_attach_index != -1)
 		{
 			MV1DetachAnim(_handle, _attach_index);
 			_attach_index = -1;
 		}
 		// ステータスに合わせてアニメーションのアタッチ
-		switch (_status)
+		switch(_status)
 		{
 		case STATUS::WAIT:
-			_attach_index = MV1AttachAnim(_handle, MV1GetAnimIndex(_handle,"idle"), -1, FALSE);
+			_attach_index = MV1AttachAnim(_handle, MV1GetAnimIndex(_handle, "idle"), -1, FALSE);
 			break;
 		case STATUS::WALK:
 			_attach_index = MV1AttachAnim(_handle, MV1GetAnimIndex(_handle, "run"), -1, FALSE);
@@ -221,11 +184,10 @@ bool ModeGame::Process()
 	}
 
 	// 再生時間がアニメーションの総再生時間に達したら再生時間を０に戻す
-	if (_play_time >= _total_time)
+	if(_play_time >= _total_time)
 	{
 		_play_time = 0.0f;
 	}
-
 	return true;
 }
 

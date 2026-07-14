@@ -1,12 +1,10 @@
+#pragma once
 #include "appframe.h"
 #include "CameraBase.h"
 #include "MouseInput.h"
 #include <string>
 
-// 計算用マクロ
-#define	PI	(3.1415926535897932386f)
-#define	DEG2RAD(x)			( ((x) / 180.0f ) * PI )
-#define	RAD2DEG(x)			( ((x) * 180.0f ) / PI )
+
 
 // モード
 class ModeGame : public ModeBase
@@ -18,9 +16,7 @@ public:
 	virtual bool Process();
 	virtual bool Render();
 
-	// ゲームリセット機能を追加
-	void ResetGame();
-
+	bool CharaMovement();
 protected:
 
 	// カメラ

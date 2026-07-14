@@ -1,6 +1,11 @@
 #pragma once
 #include "DxLib.h"
 
+// 計算用マクロ
+#define	PI	(3.1415926535897932386f)
+#define	DEG2RAD(x)			( ((x) / 180.0f ) * PI )
+#define	RAD2DEG(x)			( ((x) * 180.0f ) / PI )
+
 class CameraBase {
 public:
     CameraBase();
@@ -40,9 +45,9 @@ private:
     float _mouseSensitivity;        // マウス感度
 
     // FPS視点用パラメータ
-    static const float FPS_CAMERA_HEIGHT;  // カメラの高さ
-    static const int SCREEN_CENTER_X;       // 画面中央X座標
-    static const int SCREEN_CENTER_Y;       // 画面中央Y座標
+    float FPS_CAMERA_HEIGHT = 100.0f;  // カメラの高さ
+    int SCREEN_CENTER_X = 1920 / 2;       // 画面中央X座標
+    int SCREEN_CENTER_Y = 1080 / 2;       // 画面中央Y座標
 
     // 内部処理
     void HandleMouseInput();
