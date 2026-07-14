@@ -217,23 +217,23 @@ bool ModeGame::Render()
 	// 再生時間をセットする
 	MV1SetAttachAnimTime(_handle, _attach_index, _play_time);
 
-	// モデルを描画する
-	{
-		// 位置
-		MV1SetPosition(_handle, _vPos);
-		// 向きからY軸回転を算出
-		VECTOR vRot = { 0,0,0 };
-		vRot.y = atan2(_vDir.x * -1, _vDir.z * -1);		// モデルが標準でどちらを向いているかで式が変わる(これは-zを向いている場合)
-		MV1SetRotationXYZ(_handle, vRot);
-		// 描画
-		MV1DrawModel(_handle);
+	//// モデルを描画する
+	//{
+	//	// 位置
+	//	MV1SetPosition(_handle, _vPos);
+	//	// 向きからY軸回転を算出
+	//	VECTOR vRot = { 0,0,0 };
+	//	vRot.y = atan2(_vDir.x * -1, _vDir.z * -1);		// モデルが標準でどちらを向いているかで式が変わる(これは-zを向いている場合)
+	//	MV1SetRotationXYZ(_handle, vRot);
+	//	// 描画
+	//	MV1DrawModel(_handle);
 
-		// コリジョン判定用ラインの描画
-		if (_bViewCollision)
-		{
-			DrawLine3D(VAdd(_vPos, VGet(0, _colSubY, 0)), VAdd(_vPos, VGet(0, -99999.f, 0)), GetColor(255, 0, 0));
-		}
-	}
+	//	// コリジョン判定用ラインの描画
+	//	if (_bViewCollision)
+	//	{
+	//		DrawLine3D(VAdd(_vPos, VGet(0, _colSubY, 0)), VAdd(_vPos, VGet(0, -99999.f, 0)), GetColor(255, 0, 0));
+	//	}
+	//}
 
 	// マップモデルを描画する
 	{
