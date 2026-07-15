@@ -13,6 +13,7 @@ Player::Player()
 	_playTime = -1;
 	_vPos = VGet(0, 0, 0);
 	_vDir = VGet(0, 0, 0);
+	_vVelocity = VGet(0, 0, 0);
 	_colSubY = 0.0f;
 	_status = STATUS::NONE;
 	_bViewCollision = false;
@@ -27,6 +28,7 @@ bool Player::Initialize()
 	_playTime = 0.0f;
 	_vPos = VGet(100, 0, 0);
 	_vDir = VGet(0, 0, -1);
+	_vVelocity = VGet(0, 0, 0);
 	_colSubY = 40.0f;
 	_status = STATUS::NONE;
 	_bViewCollision = true;
@@ -78,8 +80,7 @@ VECTOR Player::CalculateMovementVector(CameraBase& camera, int key)
 	VECTOR camTarget = camera.GetTarget();
 	float camrad = atan2(camPos.z - camTarget.z, camPos.x - camTarget.x);
 
-	float mvSpeed = 6.0f;
-	_mouseInput.Update(key, camrad, mvSpeed);
+	_mouseInput.Update(key, camrad, MAX_SPEED);
 
 	return _mouseInput.GetMovementVector();
 }
@@ -87,23 +88,60 @@ VECTOR Player::CalculateMovementVector(CameraBase& camera, int key)
 void Player::MoveWithCollision(const Map& map, const VECTOR& baseVelocity, float camrad)
 {
 	VECTOR oldvPos = _vPos;
-	VECTOR v = baseVelocity;
-	float mvSpeed = 6.0f;
+
+	// 【加減速ロジック】現在の速度ベクトル(_vVelocity)を目標(baseVelocity)に近づける
+	if(VSize(baseVelocity) > 0.0f)
+	{
+		// 入力がある場合：目標の方向に向けて加速
+		// ※ baseVelocity の長さはすでに最高速度(MAX_SPEED)になっている前提
+		VECTOR vDiff = VSub(baseVelocity, _vVelocity);
+		float diffLen = VSize(vDiff);
+
+		if(diffLen <= ACCEL)
+		{
+			_vVelocity = baseVelocity; // 差がわずかなら目標値にする
+		}
+		else
+		{
+			// 目標に向けて ACCEL の分だけ速度を近づける
+			_vVelocity = VAdd(_vVelocity, VScale(VNorm(vDiff), ACCEL));
+		}
+	}
+	else
+	{
+		// 入力がない場合：摩擦や空気抵抗のように減速
+		float currentSpeed = VSize(_vVelocity);
+		if(currentSpeed <= DECEL)
+		{
+			_vVelocity = VGet(0, 0, 0); // ほぼ止まっていれば完全に停止
+		}
+		else
+		{
+			// 現在進んでいる方向と逆向きに力をかけて減速する
+			_vVelocity = VSub(_vVelocity, VScale(VNorm(_vVelocity), DECEL));
+		}
+	}
+
+	// コリジョン回避用の計算には、この「加減速計算後の現在の速度」を使う
+	VECTOR v = _vVelocity;
+	float currentSpeedXZ = VSize(VGet(v.x, 0.0f, v.z));
 
 	float escapeTbl[] =
 	{
 		0, -10, 10, -20, 20, -30, 30, -40, 40, -50, 50, -60, 60, -70, 70, -80, 80,
 	};
 
-	float rad = atan2(baseVelocity.z, baseVelocity.x) - camrad;
+	// 現在の移動ベクトルの角度を求める
+	float rad = atan2(v.z, v.x) - camrad;
 
 	for(int i = 0; i < sizeof(escapeTbl) / sizeof(escapeTbl[0]); i++)
 	{
-		if(!_mouseInput.IsMoving()) { break; }
+		// 速度が 0 の時はコリジョン判定を回さない
+		if(currentSpeedXZ <= 0.01f) { break; }
 
 		float escape_rad = DEG2RAD(escapeTbl[i]);
-		v.x = cos(rad + camrad + escape_rad) * mvSpeed;
-		v.z = sin(rad + camrad + escape_rad) * mvSpeed;
+		v.x = cos(rad + camrad + escape_rad) * currentSpeedXZ;
+		v.z = sin(rad + camrad + escape_rad) * currentSpeedXZ;
 
 		_vPos = VAdd(_vPos, v);
 
@@ -117,13 +155,15 @@ void Player::MoveWithCollision(const Map& map, const VECTOR& baseVelocity, float
 		else
 		{
 			_vPos = oldvPos;
-			v = baseVelocity;
+			v = _vVelocity; // 元の速度に戻す
 		}
 	}
 
-	if(VSize(v) > 0.0f)
+	// 移動結果に基づいて向きとアニメーションステータスを確定
+	// ※ 速度がごくわずかでもあるならWALK状態にする（閾値を少し設けると不自然にアニメーションが切り替わるのを防げます）
+	if(currentSpeedXZ > 0.1f)
 	{
-		_vDir = v;
+		_vDir = _vVelocity;
 		_status = STATUS::WALK;
 	}
 	else
