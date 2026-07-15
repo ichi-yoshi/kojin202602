@@ -45,8 +45,8 @@ bool ModeGame::Render()
 
     // プレイヤーの現在地に基づいたポイントライト設定
     VECTOR playerPos = _player.GetPosition();
-    SetGlobalAmbientLight(GetColorF(0.f, 0.f, 0.f, 0.f));
-    ChangeLightTypePoint(VAdd(playerPos, VGet(0, 50.f, 0)), 1000.f, 0.f, 0.005f, 0.f);
+    SetGlobalAmbientLight(GetColorF(0.f, 0.0f, 0.0f, 0.0f));
+    ChangeLightTypePoint(VAdd(playerPos, VGet(0, 50.f, 0)), 1000.0f, 0.0f, 0.005f, 0.0f);
 
     // カメラ設定適用
     _cam.ApplyCamera();

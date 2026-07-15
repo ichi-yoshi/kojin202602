@@ -44,11 +44,13 @@ void Map::Terminate()
 
 void Map::Render() 
 {
+	// マップ描画
 	if(_handleMap != -1) 
 	{
 		MV1DrawModel(_handleMap);
 	}
 
+	// スカイスフィア描画
 	/*if(_handleSkySphere != -1)
 	{
 		MV1DrawModel(_handleSkySphere);
@@ -59,9 +61,11 @@ bool Map::CheckCollision(const VECTOR& startPos, float colSubY, VECTOR& outHitPo
 {
 	if(_handleMap == -1 || _frameMapCollision == -1) { return false; }
 
+	// コリジョン判定用のラインを設定
 	VECTOR lineStart = VAdd(startPos, VGet(0.0f, colSubY, 0.0f));
 	VECTOR lineEnd = VAdd(startPos, VGet(0.0f, -9999.0f, 0.0f));
 
+	// ラインとコリジョンの交差判定
 	MV1_COLL_RESULT_POLY hitPoly = MV1CollCheck_Line(_handleMap, _frameMapCollision, lineStart, lineEnd);
 	if(hitPoly.HitFlag)
 	{

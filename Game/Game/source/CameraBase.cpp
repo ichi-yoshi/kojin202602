@@ -3,10 +3,10 @@
 
 CameraBase::CameraBase()
 {
-	_vPos = VGet(0, 90.f, -300.f);
-	_vTarget = VGet(0, 60, 0);
-	_clipFar = 10000.f;
-	_clipNear = 2.f;
+	_vPos = VGet(0.0f, 90.0f, -300.0f);
+	_vTarget = VGet(0.0f, 60.0f, 0.0f);
+	_clipFar = 10000.0f;
+	_clipNear = 2.0f;
 	_prevMouseX = -1;
 	_prevMouseY = -1;
 	_camYaw = 0.0f;
@@ -22,10 +22,10 @@ CameraBase::~CameraBase()
 bool CameraBase::Initialize()
 {
     // カメラの初期設定
-    _vPos = VGet(0, 90.f, -300.f);
-    _vTarget = VGet(0, 60, 0);
-    _clipNear = 2.f;
-    _clipFar = 10000.f;
+    _vPos = VGet(0.0f, 90.0f, -300.0f);
+    _vTarget = VGet(0.0f, 60.0f, 0.0f);
+    _clipNear = 2.0f;
+    _clipFar = 10000.0f;
 
     // マウス関連の初期化
     _prevMouseX = -1;

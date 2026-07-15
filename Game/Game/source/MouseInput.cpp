@@ -19,7 +19,7 @@ void MouseInput::Update(int key, float camrad, float mvSpeed)
 	if(key & PAD_INPUT_6) { v.z = 1; }
 
 	// 入力があった場合のみ、カメラの向きに合わせて回転・移動ベクトルを計算する
-	float length = 0.f;
+	float length = 0.0f;
 	if(VSize(v) > 0.f)
 	{
 		length = mvSpeed;

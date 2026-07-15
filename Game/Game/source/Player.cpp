@@ -78,7 +78,7 @@ VECTOR Player::CalculateMovementVector(CameraBase& camera, int key)
 	VECTOR camTarget = camera.GetTarget();
 	float camrad = atan2(camPos.z - camTarget.z, camPos.x - camTarget.x);
 
-	float mvSpeed = 6.f;
+	float mvSpeed = 6.0f;
 	_mouseInput.Update(key, camrad, mvSpeed);
 
 	return _mouseInput.GetMovementVector();
@@ -121,7 +121,7 @@ void Player::MoveWithCollision(const Map& map, const VECTOR& baseVelocity, float
 		}
 	}
 
-	if(VSize(v) > 0.f)
+	if(VSize(v) > 0.0f)
 	{
 		_vDir = v;
 		_status = STATUS::WALK;
@@ -182,8 +182,8 @@ void Player::Render()
 
 	// 位置と回転
 	MV1SetPosition(_handle, _vPos);
-	VECTOR vRot = { 0, 0, 0 };
-	vRot.y = atan2(_vDir.x * -1.f, _vDir.z * -1.f);
+	VECTOR vRot = { 0.0f, 0.0f, 0.0f };
+	vRot.y = atan2(_vDir.x * -1.0f, _vDir.z * -1.0f);
 	MV1SetRotationXYZ(_handle, vRot);
 
 	MV1DrawModel(_handle);
@@ -191,6 +191,6 @@ void Player::Render()
 	// デバッグ用コリジョンラインの描画
 	if(_bViewCollision)
 	{
-		DrawLine3D(VAdd(_vPos, VGet(0, _colSubY, 0)), VAdd(_vPos, VGet(0, -99999.f, 0)), GetColor(255, 0, 0));
+		DrawLine3D(VAdd(_vPos, VGet(0.0f, _colSubY, 0.0f)), VAdd(_vPos, VGet(0.0f, -99999.0f, 0.0f)), GetColor(255, 0, 0));
 	}
 }
