@@ -1,12 +1,10 @@
 #pragma once
 #include "appframe.h"
 #include "CameraBase.h"
-#include "MouseInput.h"
-#include <string>
+#include "Player.h"
+#include "Map.h"
 
-
-
-// ƒ‚[ƒh
+// ãƒ¢ãƒ¼ãƒ‰
 class ModeGame : public ModeBase
 {
 	typedef ModeBase base;
@@ -16,37 +14,11 @@ public:
 	virtual bool Process();
 	virtual bool Render();
 
-	bool CharaMovement();
 protected:
 
-	// ƒJƒƒ‰
+	// ã‚«ãƒ¡ãƒ©
 	CameraBase	_cam;
 
-	// 3Dƒ‚ƒfƒ‹•`‰æ—p
-	int _handle;
-	int _attach_index;
-	float _total_time;
-	float _play_time;
-	VECTOR _vPos;	// ˆÊ’u
-	VECTOR _vDir;	// Œü‚«
-	float _colSubY;	// ƒRƒŠƒWƒ‡ƒ“”»’è‚ÌY•â³(˜ˆÊ’uj
-
-	enum class STATUS
-	{
-		NONE,
-		WAIT,
-		WALK,
-		_EOT_
-	};
-	STATUS _status;
-
-	// ƒ}ƒbƒv—p
-	int _handleMap;
-	int _handleSkySphere;
-	int _frameMapCollision;
-
-	// ƒfƒoƒbƒO—p
-	bool	_bViewCollision;
-
-	MouseInput  _mouseInput;
+	Player _player;
+	Map _map;
 }; 
