@@ -14,6 +14,9 @@ public:
 	bool CheckCollision(const VECTOR& startPos, float colSubY, VECTOR& outHitPos) const;
 
 	void SetCollisionVisible(bool visible);
+
+	VECTOR GetMinPosition() const;
+	VECTOR GetMaxPosition() const;
 private:
 	int _handleMap;
 	int _handleSkySphere;

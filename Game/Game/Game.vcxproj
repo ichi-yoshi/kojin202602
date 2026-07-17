@@ -158,7 +158,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\ApplicationMain.cpp" />
+    <ClCompile Include="source\AStarPathfinder.cpp" />
     <ClCompile Include="source\CameraBase.cpp" />
+    <ClCompile Include="source\Enemy.cpp" />
     <ClCompile Include="source\Map.cpp" />
     <ClCompile Include="source\ModeGame.cpp" />
     <ClCompile Include="source\MouseInput.cpp" />
@@ -166,7 +168,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\ApplicationMain.h" />
+    <ClInclude Include="source\AStarPathfinder.h" />
     <ClInclude Include="source\CameraBase.h" />
+    <ClInclude Include="source\Enemy.h" />
     <ClInclude Include="source\Map.h" />
     <ClInclude Include="source\ModeGame.h" />
     <ClInclude Include="source\MouseInput.h" />

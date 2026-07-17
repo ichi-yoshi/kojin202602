@@ -9,6 +9,7 @@ bool ModeGame::Initialize()
 
 	if(!_map.Initialize()) { return false; }
 	if(!_player.Initialize()) { return false; }
+	_enemy.Initialize(_map);
 
 	return true;
 }
@@ -26,6 +27,7 @@ bool ModeGame::Process()
 	base::Process();
 	
 	_player.Update(_cam, _map);
+	_enemy.Update(_map, _player.GetPosition());
 
 	_map.SetCollisionVisible(_player.IsViewCollision());
 	return true;
@@ -54,6 +56,7 @@ bool ModeGame::Render()
     // 描画
     //_player.Render();
     _map.Render();
+	_enemy.Render();
 
     return true;
 }

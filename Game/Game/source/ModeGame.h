@@ -3,6 +3,7 @@
 #include "CameraBase.h"
 #include "Player.h"
 #include "Map.h"
+#include "Enemy.h"
 
 // モード
 class ModeGame : public ModeBase
@@ -21,4 +22,5 @@ protected:
 
 	Player _player;
 	Map _map;
+	Enemy _enemy;
 }; 

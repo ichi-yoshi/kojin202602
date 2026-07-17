@@ -82,3 +82,15 @@ void Map::SetCollisionVisible(bool visible)
 		MV1SetFrameVisible(_handleMap, _frameMapCollision, visible ? FALSE : TRUE);
 	}
 }
+
+VECTOR Map::GetMinPosition() const 
+{
+	MV1_REF_POLYGONLIST refPoly = MV1GetReferenceMesh(_handleMap, -1, TRUE);
+	return refPoly.MinPosition;
+}
+
+VECTOR Map::GetMaxPosition() const 
+{
+	MV1_REF_POLYGONLIST refPoly = MV1GetReferenceMesh(_handleMap, -1, TRUE);
+	return refPoly.MaxPosition;
+}
