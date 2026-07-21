@@ -1,15 +1,17 @@
 #pragma once
-#include "DxLib.h"
+#include "appframe.h"
+#include "MouseInput.h"
 
 // 計算用マクロ
 #define	PI	(3.1415926535897932386f)
 #define	DEG2RAD(x)			( ((x) / 180.0f ) * PI )
 #define	RAD2DEG(x)			( ((x) * 180.0f ) / PI )
 
-class CameraBase {
+class CameraBase
+{
 public:
     CameraBase();
-    ~CameraBase();
+    ~CameraBase() = default;
 
     // 初期化・終了処理
     bool Initialize();
@@ -38,20 +40,15 @@ private:
     VECTOR _vPos;                   // 位置
     VECTOR _vTarget;                // 注視点
     float _clipNear, _clipFar;      // クリップ距離
-
-    // マウス制御用
-    int _prevMouseX, _prevMouseY;   // 前回のマウス位置
     float _camYaw, _camPitch;       // カメラの角度
-    float _mouseSensitivity;        // マウス感度
-
+   
     // FPS視点用パラメータ
     float FPS_CAMERA_HEIGHT = 100.0f;  // カメラの高さ
-    int SCREEN_CENTER_X = 1920 / 2;       // 画面中央X座標
-    int SCREEN_CENTER_Y = 1080 / 2;       // 画面中央Y座標
 
     // 内部処理
     void HandleMouseInput();
     void UpdateFPSCamera(VECTOR playerPos);
-    void ResetMouseToCenter();
+
+	MouseInput _mouse; // マウス入力処理用オブジェクト
 };
 

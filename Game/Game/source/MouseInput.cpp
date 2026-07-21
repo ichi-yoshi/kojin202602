@@ -5,6 +5,9 @@ MouseInput::MouseInput()
 {
 	_vMove = VGet(0, 0, 0);
 	_isMoving = false;
+	_prevMouseX = -1;
+	_prevMouseY = -1;
+	_mouseSensitivity = 0.002f;
 }
 
 void MouseInput::Update(int key, float camrad, float mvSpeed)
@@ -31,4 +34,35 @@ void MouseInput::Update(int key, float camrad, float mvSpeed)
 	_vMove.x = cos(rad + camrad) * length;
 	_vMove.y = 0.0f;
 	_vMove.z = sin(rad + camrad) * length;
+}
+
+void MouseInput::MousePointMovement()
+{
+	// マウス移動量取得
+	int mouseX, mouseY;
+	GetMousePoint(&mouseX, &mouseY);
+
+	// 初回時の前回位置設定
+	if(_prevMouseX == -1)
+	{
+		_prevMouseX = mouseX;
+		_prevMouseY = mouseY;
+	}
+
+	// マウスの移動量を計算
+	int deltaX = mouseX - _prevMouseX;
+	int deltaY = mouseY - _prevMouseY;
+	_prevMouseX = mouseX;
+	_prevMouseY = mouseY;
+
+	_Yaw = deltaX * _mouseSensitivity;
+	_Pitch = deltaY * _mouseSensitivity;
+}
+
+void MouseInput::ResetMousePointCenter() 
+{
+	// 毎フレーム中央に戻す
+	SetMousePoint(SCREEN_CENTER_X, SCREEN_CENTER_Y);
+	_prevMouseX = SCREEN_CENTER_X;
+	_prevMouseY = SCREEN_CENTER_Y;
 }

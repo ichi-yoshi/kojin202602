@@ -7,16 +7,8 @@ CameraBase::CameraBase()
 	_vTarget = VGet(0.0f, 60.0f, 0.0f);
 	_clipFar = 10000.0f;
 	_clipNear = 2.0f;
-	_prevMouseX = -1;
-	_prevMouseY = -1;
 	_camYaw = 0.0f;
 	_camPitch = 0.0f;
-	_mouseSensitivity = 0.002f;
-}
-
-CameraBase::~CameraBase()
-{
-
 }
 
 bool CameraBase::Initialize()
@@ -26,15 +18,8 @@ bool CameraBase::Initialize()
     _vTarget = VGet(0.0f, 60.0f, 0.0f);
     _clipNear = 2.0f;
     _clipFar = 10000.0f;
-
-    // マウス関連の初期化
-    _prevMouseX = -1;
-    _prevMouseY = -1;
     _camYaw = 0.0f;
-    _camPitch = 0.0f;
-
-	// マウス感度の設定
-	_mouseSensitivity = 0.002f;
+    _camPitch = 0.0f; 
 
 	// マウスカーソルを非表示にする
     SetMouseDispFlag(FALSE);
@@ -51,30 +36,17 @@ void CameraBase::Update(VECTOR playerPos, int& key)
 {
     HandleMouseInput();
     UpdateFPSCamera(playerPos);
-    ResetMouseToCenter();
+    _mouse.ResetMousePointCenter();
 }
 
 void CameraBase::HandleMouseInput()
 {
-    // マウス移動量取得
-    int mouseX, mouseY;
-    GetMousePoint(&mouseX, &mouseY);
-
-    // 初回時の前回位置設定
-    if (_prevMouseX == -1)
-    {
-        _prevMouseX = mouseX;
-        _prevMouseY = mouseY;
-    }
-
-    int deltaX = mouseX - _prevMouseX;
-    int deltaY = mouseY - _prevMouseY;
-    _prevMouseX = mouseX;
-    _prevMouseY = mouseY;
+	// マウスの移動量を取得してYawとPitchを更新
+	_mouse.MousePointMovement();
 
     // カメラ回転(マウス移動で制御)FPS視点用
-    _camYaw += deltaX * _mouseSensitivity;
-    _camPitch -= deltaY * _mouseSensitivity;
+    _camYaw += _mouse.GetYaw();
+    _camPitch -= _mouse.GetPitch();
 
     // ピッチ制限
     if (_camPitch < -1.2f) _camPitch = -1.2f;
@@ -93,14 +65,6 @@ void CameraBase::UpdateFPSCamera(VECTOR playerPos)
     );
 
     _vTarget = VAdd(_vPos, forward); // 視線方向
-}
-
-void CameraBase::ResetMouseToCenter()
-{
-    // 毎フレーム中央に戻す
-    SetMousePoint(SCREEN_CENTER_X, SCREEN_CENTER_Y);
-    _prevMouseX = SCREEN_CENTER_X;
-    _prevMouseY = SCREEN_CENTER_Y;
 }
 
 void CameraBase::ApplyCamera()
