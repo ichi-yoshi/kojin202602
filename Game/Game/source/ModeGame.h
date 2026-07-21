@@ -16,10 +16,7 @@ public:
 	virtual bool Render();
 
 protected:
-
-	// カメラ
 	CameraBase	_cam;
-
 	Player _player;
 	Map _map;
 	Enemy _enemy;

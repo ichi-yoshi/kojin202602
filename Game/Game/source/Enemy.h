@@ -13,12 +13,12 @@ public:
     void Render();
 
 private:
-    VECTOR _pos;
-    float _speed;
-    int _imageHandle; 
+	VECTOR _pos;        // 敵の現在位置
+	float _speed;       // 敵の移動速度
+	int _imageHandle;   // 敵の画像ハンドル
 
-    AStarPathfinder _pathfinder;
-    std::vector<VECTOR> _path;
-    int _pathIndex;
+	AStarPathfinder _pathfinder;    // A*経路探索用のオブジェクト
+	std::vector<VECTOR> _path;      // 計算された経路の座標リスト
+	int _pathIndex;	// 現在の経路上のターゲットインデックス
 };
 

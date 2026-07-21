@@ -12,11 +12,6 @@ Enemy::Enemy()
 
 void Enemy::Initialize(const Map& map) 
 {
-	/*_pos = VGet(100.0f, 0.0f, 100.0f);
-	_imageHandle = LoadGraph(image::Enemy2);
-
-	_pathfinder.BuildGridFromMap(map, VGet(-100.0f, 0.0f, 0.0f), 50.0f, 80, 80);*/
-
     _imageHandle = LoadGraph(image::Enemy1);
 
     // 正しく取得した最小・最大座標
@@ -43,7 +38,7 @@ void Enemy::Initialize(const Map& map)
     // A*グリッドの再構築
     _pathfinder.BuildGridFromMap(map, mapMin, cellSize, gridWidth, gridHeight);
 
-    // 敵を一旦中心に配置（※初期位置は任意で調整してください）
+    // 敵を配置
     _pos = VGet(1000.0f, 0.0f, -300.0f);
 }
 
@@ -53,9 +48,9 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
     VECTOR toPlayer = VSub(playerPos, _pos);
     float distToPlayer = VSize(toPlayer);
 
-    // 【新設】近距離（例: 50.0f 以内）にプレイヤーがいる場合の処理
-    const float CLOSE_RANGE = 50.0f;
-    const float STOP_RANGE = 10.0f;  // これ以上近づいたら完全に止まる（密着防止）
+    // 近距離にプレイヤーがいる場合の処理
+	const float CLOSE_RANGE = 50.0f;    // 近距離とみなす距離（A*を無視して直接追従する）
+    const float STOP_RANGE = 10.0f;     // これ以上近づいたら完全に止まる
 
     if(distToPlayer < CLOSE_RANGE)
     {
@@ -72,14 +67,15 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
         // 足元の床高さに吸着
         VECTOR hitPos;
         if(map.CheckCollision(_pos, 40.f, hitPos)) { _pos.y = hitPos.y; }
-        return; // 近距離処理が終わったらここでUpdateを抜ける！
+        return; // 近距離処理が終わったらここでUpdateを抜ける
     }
 
-    // --- 以下は遠距離のときだけ実行される従来のA*処理 ---
+    // 遠距離時の従来のA*処理 ---
 
     static int recalcTimer = 0;
     recalcTimer++;
 
+	// 一定時間ごとに経路を再計算する
     if(recalcTimer >= 40 || _path.empty())
     {
         _path = _pathfinder.FindPath(_pos, playerPos);
@@ -116,7 +112,8 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 
 void Enemy::Render()
 {
-    // A*の床グリッドやルート線画を表示してデバッグ
+    //デバッグ用
+    // A*の床グリッドやルート線画を表示
     if(CheckHitKey(KEY_INPUT_SPACE)) 
     {
         _pathfinder.DebugRender();
@@ -129,5 +126,6 @@ void Enemy::Render()
         DrawBillboard3D(_pos, 0.5f, 0.5f, 200.0f, 0.0f, _imageHandle, TRUE);
     }
 
+	// デバッグ用
 	DrawFormatString(0, 0, GetColor(255, 255, 255), "Enemy Pos: (%.2f, %.2f, %.2f)", _pos.x, _pos.y, _pos.z);
 }

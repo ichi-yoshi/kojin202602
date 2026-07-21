@@ -10,21 +10,18 @@ Map::Map()
 	lineEnd = VGet(0, 0, 0);
 }
 
-bool Map::Initialize()
+void Map::Initialize()
 {
     // モデルロード
     _handleSkySphere = MV1LoadModel(mv1::SkySphere);
     _handleMap = MV1LoadModel(mv1::Map);
     _frameMapCollision = MV1SearchFrame(_handleMap, collision::MapCollision);
 
-    if(_handleMap == -1) { return false; }
-
     // コリジョン情報の生成
     MV1SetupCollInfo(_handleMap, _frameMapCollision, 16, 16, 16);
+
     // コリジョンのフレームを描画しない設定
     MV1SetFrameVisible(_handleMap, _frameMapCollision, FALSE);
-
-    return true;
 }
 
 void Map::Terminate()
@@ -67,6 +64,7 @@ bool Map::CheckCollision(const VECTOR& startPos, float colSubY, VECTOR& outHitPo
 
 	// ラインとコリジョンの交差判定
 	MV1_COLL_RESULT_POLY hitPoly = MV1CollCheck_Line(_handleMap, _frameMapCollision, lineStart, lineEnd);
+
 	if(hitPoly.HitFlag)
 	{
 		outHitPos = hitPoly.HitPosition;
@@ -75,20 +73,25 @@ bool Map::CheckCollision(const VECTOR& startPos, float colSubY, VECTOR& outHitPo
 	return false;
 }
 
+// コリジョン判定用のフレームを可視化するかどうか
 void Map::SetCollisionVisible(bool visible)
 {
 	if(_handleMap != -1 && _frameMapCollision != -1)
 	{
+		// コリジョン判定用のフレームの可視化設定
 		MV1SetFrameVisible(_handleMap, _frameMapCollision, visible ? FALSE : TRUE);
 	}
 }
 
+// マップを取得する
+// 最小座標
 VECTOR Map::GetMinPosition() const 
 {
 	MV1_REF_POLYGONLIST refPoly = MV1GetReferenceMesh(_handleMap, -1, TRUE);
 	return refPoly.MinPosition;
 }
 
+// 最大座標
 VECTOR Map::GetMaxPosition() const 
 {
 	MV1_REF_POLYGONLIST refPoly = MV1GetReferenceMesh(_handleMap, -1, TRUE);

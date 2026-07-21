@@ -19,10 +19,9 @@ Player::Player()
 	_bViewCollision = false;
 }
 
-bool Player::Initialize()
+void Player::Initialize()
 {
 	_handle = MV1LoadModel(mv1::Chara);
-	if(_handle == -1) { return false; }
 	_attachIndex = -1;
 	_totalTime = 0.0f;
 	_playTime = 0.0f;
@@ -32,7 +31,6 @@ bool Player::Initialize()
 	_colSubY = 40.0f;
 	_status = STATUS::NONE;
 	_bViewCollision = true;
-	return true;
 }
 
 void Player::Terminate()

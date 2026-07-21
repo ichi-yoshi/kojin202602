@@ -4,13 +4,10 @@
 bool ModeGame::Initialize() 
 {
 	if (!base::Initialize()) { return false; }
-
 	_cam.Initialize();
-
-	if(!_map.Initialize()) { return false; }
-	if(!_player.Initialize()) { return false; }
+	_map.Initialize();
+	_player.Initialize();
 	_enemy.Initialize(_map);
-
 	return true;
 }
 

@@ -8,18 +8,10 @@ class CameraBase;
 class Player
 {
 public:
-	enum class STATUS
-	{
-		NONE,
-		WAIT,
-		WALK,
-		_EOT_
-	};
-
 	Player();
 	~Player() { Terminate(); }
 
-	bool Initialize();
+	void Initialize();
 	void Terminate();
 
 	void Update(CameraBase& camera, const Map& map);
@@ -28,17 +20,31 @@ public:
 	VECTOR GetPosition() const { return _vPos; }
 	bool IsViewCollision() const { return _bViewCollision; }
 
+	enum class STATUS
+	{
+		NONE,
+		WAIT,
+		WALK,
+		_EOT_
+	};
 private:
+	// 内部処理
 	VECTOR CalculateMovementVector(CameraBase& camera, int key);
+
+	// コリジョン判定を回して実際に移動させる
 	void MoveWithCollision(const Map& map, const VECTOR& baseVelocity, float camrad);
+
+	// アニメーションの更新
 	void UpdateAnimation(STATUS oldStatus);
+
+	// デバッグ機能の更新
 	void UpdateDebugInput(int trg);
 	
 private:
-	int _handle;
-	int _attachIndex;
-	float _totalTime;
-	float _playTime;
+	int _handle;		// モデルハンドル
+	int _attachIndex;	// アニメーションのアタッチインデックス
+	float _totalTime;	// アニメーションの総再生時間
+	float _playTime;	// アニメーションの再生時間
 
 	VECTOR _vPos;       // 位置
 	VECTOR _vDir;       // 向き

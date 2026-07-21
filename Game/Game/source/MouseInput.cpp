@@ -13,6 +13,7 @@ void MouseInput::Update(int key, float camrad, float mvSpeed)
 	VECTOR v = VGet(0, 0, 0);
 	_isMoving = false;
 
+	//WASDキーの入力に応じて移動方向を設定
 	if(key & PAD_INPUT_5) { v.x = 1; }
 	if(key & PAD_INPUT_8) { v.x = -1; }
 	if(key & PAD_INPUT_4) { v.z = -1; }
