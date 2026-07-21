@@ -12,16 +12,18 @@ Map::Map()
 
 void Map::Initialize()
 {
-    // モデルロード
-    _handleSkySphere = MV1LoadModel(mv1::SkySphere);
-    _handleMap = MV1LoadModel(mv1::Map);
-    _frameMapCollision = MV1SearchFrame(_handleMap, collision::MapCollision);
+	// モデルロード
+	_handleSkySphere = MV1LoadModel(mv1::SkySphere);
+	_handleMap = MV1LoadModel(mv1::Map);
+	
+	_frameMapCollision = MV1SearchFrame(_handleMap, collision::MapCollision);
 
-    // コリジョン情報の生成
-    MV1SetupCollInfo(_handleMap, _frameMapCollision, 16, 16, 16);
+	// コリジョン情報の生成
+	MV1SetupCollInfo(_handleMap, _frameMapCollision, 16, 16, 16);
 
-    // コリジョンのフレームを描画しない設定
-    MV1SetFrameVisible(_handleMap, _frameMapCollision, FALSE);
+	// コリジョンのフレームを描画しない設定
+	MV1SetFrameVisible(_handleMap, _frameMapCollision, FALSE);
+   
 }
 
 void Map::Terminate()

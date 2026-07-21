@@ -12,6 +12,8 @@ public:
     void Update(const Map& map, VECTOR playerPos);
     void Render();
 
+	void SetupAStar(const Map& map);
+	
 private:
 	VECTOR _pos;        // 敵の現在位置
 	float _speed;       // 敵の移動速度

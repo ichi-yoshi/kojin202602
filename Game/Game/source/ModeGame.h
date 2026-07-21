@@ -20,4 +20,13 @@ protected:
 	Player _player;
 	Map _map;
 	Enemy _enemy;
+
+	enum class LoadState 
+	{
+		Loading,
+		Setup,
+		Ready
+	};
+
+	LoadState _loadState = LoadState::Loading;
 }; 

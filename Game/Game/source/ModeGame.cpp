@@ -4,10 +4,18 @@
 bool ModeGame::Initialize() 
 {
 	if (!base::Initialize()) { return false; }
-	_cam.Initialize();
+
+    _cam.Initialize();
+
+	SetUseASyncLoadFlag(TRUE);
+	
 	_map.Initialize();
 	_player.Initialize();
 	_enemy.Initialize(_map);
+
+	SetUseASyncLoadFlag(FALSE);
+
+	_loadState = LoadState::Loading;
 	return true;
 }
 
@@ -23,6 +31,20 @@ bool ModeGame::Process()
 {
 	base::Process();
 	
+    if(_loadState == LoadState::Loading)
+    {
+        // 全てのアセットの非同期ロードが完了したか確認
+        if(GetASyncLoadNum() == 0) // 現在進行中の非同期ロード数が 0 になったら完了
+        {
+            _loadState = LoadState::Ready;
+        }
+        else
+        {
+            // ロード中なのでゲームロジックの更新はスキップ
+            return true;
+        }
+    }
+
 	_player.Update(_cam, _map);
 	_enemy.Update(_map, _player.GetPosition());
 
@@ -33,6 +55,13 @@ bool ModeGame::Process()
 bool ModeGame::Render()
 {
     base::Render();
+
+    if(_loadState == LoadState::Loading)
+    {
+        // ロード中の画面描画（「Loading...」の文字を表示するなど）
+        DrawString(100, 100, "NOW LOADING...", GetColor(255, 255, 255));
+        return true;
+    }
 
     // 3D基本設定
     SetUseZBuffer3D(TRUE);

@@ -8,6 +8,8 @@ MouseInput::MouseInput()
 	_prevMouseX = -1;
 	_prevMouseY = -1;
 	_mouseSensitivity = 0.002f;
+	_Yaw = 0.0f;
+	_Pitch = 0.0f;
 }
 
 void MouseInput::Update(int key, float camrad, float mvSpeed)
