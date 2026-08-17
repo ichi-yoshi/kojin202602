@@ -32,6 +32,7 @@ void Player::Initialize()
 	_colSubY = 40.0f;
 	_status = STATUS::NONE;
 	_bViewCollision = true;
+	_stamina.Initialize(100.0f, 0.3f, 0.2f);
 }
 
 void Player::Terminate()
@@ -79,7 +80,11 @@ VECTOR Player::CalculateMovementVector(CameraBase& camera, int key)
 	VECTOR camTarget = camera.GetTarget();
 	float camrad = atan2(camPos.z - camTarget.z, camPos.x - camTarget.x);
 
-	_mouseInput.Update(key, camrad, MAX_SPEED);
+	// Shiftキー押下 かつ スタミナ切れでない場合はダッシュ最高速度をセット
+	bool isShiftPressed = (CheckHitKey(KEY_INPUT_LSHIFT) == 1 || CheckHitKey(KEY_INPUT_RSHIFT) == 1);
+	float currentMaxSpeed = (isShiftPressed && !_stamina.IsExhausted()) ? DASH_SPEED : MAX_SPEED;
+
+	_mouseInput.Update(key, camrad, currentMaxSpeed);
 
 	return _mouseInput.GetMovementVector();
 }
@@ -119,6 +124,17 @@ void Player::MoveWithCollision(const Map& map, const VECTOR& baseVelocity, float
 			// 現在進んでいる方向と逆向きに力をかけて減速する
 			_vVelocity = VSub(_vVelocity, VScale(VNorm(_vVelocity), DECEL));
 		}
+	}
+
+	float moveDistance = VSize(_vVelocity);
+	bool isShiftPressed = (CheckHitKey(KEY_INPUT_LSHIFT) == 1);
+	if(moveDistance > 0.1f && isShiftPressed && !_stamina.IsExhausted())
+	{
+		_stamina.Consume(moveDistance * 0.1f); // キーを押している間はスタミナを消費
+	}
+	else
+	{
+		_stamina.Recover(); // キーを離している間はスタミナを回復
 	}
 
 	// コリジョン回避用の計算には、この「加減速計算後の現在の速度」を使う
@@ -226,7 +242,10 @@ void Player::Render()
 	vRot.y = atan2(_vDir.x * -1.0f, _vDir.z * -1.0f);
 	MV1SetRotationXYZ(_handle, vRot);
 
-	MV1DrawModel(_handle);
+	//MV1DrawModel(_handle);
+
+	DrawFormatString(0, 40, Color::White(), "Player Stamina: %.1f / %.1f (%s)",
+		_stamina.GetCurrent(), _stamina.GetMax(), _stamina.IsExhausted() ? "EXHAUSTED" : "OK");
 
 	// デバッグ用コリジョンラインの描画
 	if(_bViewCollision)

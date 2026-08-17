@@ -9,6 +9,8 @@ Enemy::Enemy()
 	_speed = 8.5f;
 	_imageHandle = -1;
 	_pathIndex = 0;
+
+	_stamina.Initialize(100.0f, 0.3f, 0.2f);
 }
 
 void Enemy::Initialize(const Map& map) 
@@ -50,6 +52,16 @@ void Enemy::SetupAStar(const Map& map)
 
 void Enemy::Update(const Map& map, VECTOR playerPos)
 {
+	if(_stamina.IsExhausted())
+	{
+		_stamina.Recover(); // 回復処理
+
+		// 追跡中断中も床への吸着だけは行う
+		VECTOR hitPos;
+		if(map.CheckCollision(_pos, 40.0f, hitPos)) { _pos.y = hitPos.y; }
+		return;
+	}
+
 	// 敵とプレイヤーの直線距離を計算
 	VECTOR toPlayer = VSub(playerPos, _pos);
 	float distToPlayer = VSize(toPlayer);
@@ -68,6 +80,11 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 			// 障害物がない前提で、プレイヤーの方向に直接スムーズに移動する
 			VECTOR dir = VNorm(toPlayer);
 			_pos = VAdd(_pos, VScale(dir, _speed));
+			_stamina.Consume(VSize(VScale(dir, _speed)));
+		}
+		else
+		{
+			_stamina.Recover(); // 移動停止中は回復
 		}
 
 		// 足元の床高さに吸着
@@ -105,7 +122,12 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 		{
 			VECTOR dir = VNorm(toTarget);
 			_pos = VAdd(_pos, VScale(dir, _speed));
+			_stamina.Consume(VSize(VScale(dir, _speed)));
 		}
+	}
+	else
+	{
+		_stamina.Recover(); // 移動していない場合は回復
 	}
 
 	// 足元の床高さに吸着
@@ -139,4 +161,6 @@ void Enemy::Render()
 
 	// デバッグ用
 	DrawFormatString(0, 0, Color::White(), "Enemy Pos: (%.2f, %.2f, %.2f)", _pos.x, _pos.y, _pos.z);
+	DrawFormatString(0, 20, Color::White(), "Enemy Stamina: %.1f / %.1f (%s)",
+		_stamina.GetCurrent(), _stamina.GetMax(), _stamina.IsExhausted() ? "EXHAUSTED" : "OK");
 }

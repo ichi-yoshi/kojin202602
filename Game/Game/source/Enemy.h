@@ -2,6 +2,7 @@
 #include "appframe.h"
 #include <vector>
 #include "AStarPathfinder.h"
+#include "Stamina.h"
 
 class Enemy
 {
@@ -23,5 +24,6 @@ private:
 	AStarPathfinder _pathfinder;    // A*経路探索用のオブジェクト
 	std::vector<VECTOR> _path;      // 計算された経路の座標リスト
 	int _pathIndex;	// 現在の経路上のターゲットインデックス
+	Stamina _stamina; // 敵のスタミナ
 };
 

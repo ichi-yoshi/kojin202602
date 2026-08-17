@@ -81,7 +81,7 @@ bool ModeGame::Render()
     _cam.ApplyCamera();
 
     // 描画
-    //_player.Render();
+    _player.Render();
     _map.Render();
 	_enemy.Render();
 
