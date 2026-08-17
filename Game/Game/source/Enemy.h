@@ -12,6 +12,7 @@ public:
     void Update(const Map& map, VECTOR playerPos);
     void Render();
 
+	// A*経路探索のセットアップ
 	void SetupAStar(const Map& map);
 	
 private:

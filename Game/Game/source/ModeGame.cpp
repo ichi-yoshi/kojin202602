@@ -1,5 +1,6 @@
 #include "AppFrame.h"
 #include "ModeGame.h"
+#include "MagicNumberConfig.h"
 
 bool ModeGame::Initialize() 
 {
@@ -59,7 +60,7 @@ bool ModeGame::Render()
     if(_loadState == LoadState::Loading)
     {
         // ロード中の画面描画（「Loading...」の文字を表示するなど）
-        DrawString(100, 100, "NOW LOADING...", GetColor(255, 255, 255));
+        DrawString(100, 100, "NOW LOADING...", Color::White());
         return true;
     }
 

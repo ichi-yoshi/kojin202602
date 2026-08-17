@@ -171,6 +171,7 @@
     <ClInclude Include="source\AStarPathfinder.h" />
     <ClInclude Include="source\CameraBase.h" />
     <ClInclude Include="source\Enemy.h" />
+    <ClInclude Include="source\MagicNumberConfig.h" />
     <ClInclude Include="source\Map.h" />
     <ClInclude Include="source\ModeGame.h" />
     <ClInclude Include="source\MouseInput.h" />

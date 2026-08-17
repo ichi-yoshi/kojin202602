@@ -1,5 +1,6 @@
 #include "AStarPathfinder.h"
 #include "Map.h"
+#include "MagicNumberConfig.h"
 #include <algorithm>
 
 AStarPathfinder::AStarPathfinder() 
@@ -96,6 +97,43 @@ void AStarPathfinder::BuildGridFromMap(const Map& map, VECTOR origin, float spac
 			}
 			// 周囲に何もない「完全な虚無」は _grid[index].isValid が false のまま残り、
 			// 以降の A* や描画から完全に無視されます。
+		}
+	}
+
+	// パス3：崖際（床がないマスと隣接している歩けるマス）のコストを上げる
+	const float EDGE_PENALTY = 50.0f; // ★ペナルティの大きさ（距離50.0f分遠回りするのと同じ重み）
+
+	for(int z = 0; z < _length; ++z)
+	{
+		for(int x = 0; x < _width; ++x)
+		{
+			int index = GetIndex(x, z);
+			_grid[index].moveCost = 0.0f; // 初期化
+
+			// 歩けないマスや無効なマスは対象外
+			if(!_grid[index].isValid || !_grid[index].isWalkable) continue;
+
+			// 周囲8マスに「床がないマス」があるかチェック
+			bool isNearVoid = false;
+			for(int i = 0; i < 8; ++i)
+			{
+				int nx = x + dx[i];
+				int nz = z + dz[i];
+				int nIdx = GetIndex(nx, nz);
+
+				// 範囲外、または歩けないマス（崖・壁）と隣接しているか
+				if(nIdx == -1 || !_grid[nIdx].isWalkable)
+				{
+					isNearVoid = true;
+					break;
+				}
+			}
+
+			// 崖際ならコストを加算する
+			if(isNearVoid)
+			{
+				_grid[index].moveCost = EDGE_PENALTY;
+			}
 		}
 	}
 }
@@ -199,7 +237,7 @@ std::vector<VECTOR> AStarPathfinder::FindPath(VECTOR starWorld, VECTOR goalWorld
 			}
 
 			// 隣接ノードのgScoreを計算し、オープンリストに追加または更新
-			float tentativeGScore = currentNode->gScore + CalculateDistance(*currentNode, *neighbor);
+			float tentativeGScore = currentNode->gScore + CalculateDistance(*currentNode, *neighbor) + neighbor->moveCost;
 
 			// すでにオープンリストにあるかどうかを確認
 			auto openIt = std::find(openList.begin(), openList.end(), neighbor);
@@ -223,11 +261,14 @@ std::vector<VECTOR> AStarPathfinder::FindPath(VECTOR starWorld, VECTOR goalWorld
 
 void AStarPathfinder::DebugRender()
 {
+	//名前空間の使用宣言
+	using namespace Color;
+
 	// 全グリッドマスの床位置を可視化（緑＝通行可能、赤＝通行不可）
 	for(const auto& node : _grid)
 	{
 		if(!node.isValid) continue; // 無効なマスは描画しない
-		unsigned int color = node.isWalkable ? GetColor(0, 150, 0) : GetColor(150, 0, 0);
+		unsigned int color = node.isWalkable ? Color::Green() : Color::Red();
 		DrawSphere3D(node.worldPos, 3.0f, 3, color, color, TRUE);
 	}
 
@@ -239,7 +280,7 @@ void AStarPathfinder::DebugRender()
 			// 床の少し上に浮かせて線を描画
 			VECTOR p1 = VAdd(_lastCalculatePath[i], VGet(0, 5.0f, 0));
 			VECTOR p2 = VAdd(_lastCalculatePath[i + 1], VGet(0, 5.0f, 0));
-			DrawLine3D(p1, p2, GetColor(0, 100, 255));
+			DrawLine3D(p1, p2, Color::Blue());
 		}
 	}
 }

@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include "Map.h"
 #include "Resource.h"
+#include "MagicNumberConfig.h"
 
 Enemy::Enemy() 
 {
@@ -71,7 +72,7 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 
 		// 足元の床高さに吸着
 		VECTOR hitPos;
-		if(map.CheckCollision(_pos, 40.f, hitPos)) { _pos.y = hitPos.y; }
+		if(map.CheckCollision(_pos, 40.0f, hitPos)) { _pos.y = hitPos.y; }
 		return; // 近距離処理が終わったらここでUpdateを抜ける
 	}
 
@@ -109,7 +110,7 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 
 	// 足元の床高さに吸着
 	VECTOR hitPos;
-	if(map.CheckCollision(_pos, 40.f, hitPos))
+	if(map.CheckCollision(_pos, 40.0f, hitPos))
 	{
 		_pos.y = hitPos.y;
 	}
@@ -117,6 +118,8 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 
 void Enemy::Render()
 {
+	if(_imageHandle == -1) return;
+
 	//デバッグ用
 	// A*の床グリッドやルート線画を表示
 	if(CheckHitKey(KEY_INPUT_SPACE)) 
@@ -135,5 +138,5 @@ void Enemy::Render()
 	}
 
 	// デバッグ用
-	DrawFormatString(0, 0, GetColor(255, 255, 255), "Enemy Pos: (%.2f, %.2f, %.2f)", _pos.x, _pos.y, _pos.z);
+	DrawFormatString(0, 0, Color::White(), "Enemy Pos: (%.2f, %.2f, %.2f)", _pos.x, _pos.y, _pos.z);
 }

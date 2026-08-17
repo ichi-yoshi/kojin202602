@@ -6,6 +6,7 @@ class MouseInput
 public:
 	// 初期化
 	MouseInput();
+	~MouseInput() = default;
 
 	// 毎フレームの入力更新処理（キー、カメラの向き、移動スピードを渡す）
 	void Update(int key, float camrad, float mvSpeed);

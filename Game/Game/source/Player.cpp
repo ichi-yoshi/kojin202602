@@ -3,6 +3,7 @@
 #include "CameraBase.h"
 #include "ApplicationMain.h"
 #include "Resource.h"
+#include "MagicNumberConfig.h"
 #include <cmath>
 
 Player::Player()
@@ -124,6 +125,7 @@ void Player::MoveWithCollision(const Map& map, const VECTOR& baseVelocity, float
 	VECTOR v = _vVelocity;
 	float currentSpeedXZ = VSize(VGet(v.x, 0.0f, v.z));
 
+	// コリジョン回避のための角度オフセットテーブル（度数法）
 	float escapeTbl[] =
 	{
 		0, -10, 10, -20, 20, -30, 30, -40, 40, -50, 50, -60, 60, -70, 70, -80, 80,
@@ -229,6 +231,6 @@ void Player::Render()
 	// デバッグ用コリジョンラインの描画
 	if(_bViewCollision)
 	{
-		DrawLine3D(VAdd(_vPos, VGet(0.0f, _colSubY, 0.0f)), VAdd(_vPos, VGet(0.0f, -99999.0f, 0.0f)), GetColor(255, 0, 0));
+		DrawLine3D(VAdd(_vPos, VGet(0.0f, _colSubY, 0.0f)), VAdd(_vPos, VGet(0.0f, -99999.0f, 0.0f)), Color::Red());
 	}
 }
