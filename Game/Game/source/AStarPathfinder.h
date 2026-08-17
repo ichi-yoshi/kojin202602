@@ -33,6 +33,9 @@ public:
 	// A*アルゴリズムによる経路探索
 	std::vector<VECTOR> FindPath(VECTOR startPos, VECTOR goalPos);	
 
+	// 指定したワールド座標が歩行可能なエリア（ノード）か判定する
+	bool IsWalkableWorldPos(VECTOR& worldPos);
+
 	// デバッグ用描画
 	void DebugRender();
 private:

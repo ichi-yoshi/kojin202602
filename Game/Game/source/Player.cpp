@@ -32,7 +32,9 @@ void Player::Initialize()
 	_colSubY = 40.0f;
 	_status = STATUS::NONE;
 	_bViewCollision = true;
-	_stamina.Initialize(100.0f, 0.3f, 0.2f);
+
+	// スタミナの初期化（最大値、回復率、消費率）
+	_stamina.Initialize(30.0f, 0.1f, 0.3f);
 }
 
 void Player::Terminate()

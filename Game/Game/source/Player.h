@@ -54,7 +54,7 @@ private:
 	VECTOR _vVelocity;  // 現在の移動速度ベクトル（X, Z成分を使用）
 
 	const float MAX_SPEED = 6.0f;       // 最高速度
-	const float DASH_SPEED = 12.0f;     // ダッシュ時の最高速度
+	const float DASH_SPEED = 10.0f;     // ダッシュ時の最高速度
 	const float ACCEL = 1.0f;           // 加速度（毎フレームどれだけ加速するか）
 	const float DECEL = 0.6f;           // 減速度（キーを離したとき、毎フレームどれだけ減速するか）
 

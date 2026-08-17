@@ -10,7 +10,7 @@ Enemy::Enemy()
 	_imageHandle = -1;
 	_pathIndex = 0;
 
-	_stamina.Initialize(100.0f, 0.3f, 0.2f);
+	_stamina.Initialize(100.0f, 0.3f, 0.01f);
 }
 
 void Enemy::Initialize(const Map& map) 
@@ -52,14 +52,64 @@ void Enemy::SetupAStar(const Map& map)
 
 void Enemy::Update(const Map& map, VECTOR playerPos)
 {
+	static int recalcTimer = 0;
+
 	if(_stamina.IsExhausted())
 	{
 		_stamina.Recover(); // 回復処理
 
-		// 追跡中断中も床への吸着だけは行う
-		VECTOR hitPos;
-		if(map.CheckCollision(_pos, 40.0f, hitPos)) { _pos.y = hitPos.y; }
-		return;
+		if(_stamina.IsExhausted())
+		{
+			_stamina.Recover(); // 姿を消した状態で回復
+
+			// 全回復した瞬間に「プレイヤーから少し離れた場所」へ再出現
+			if(!_stamina.IsExhausted())
+			{
+				bool spawnSuccess = false;
+				const int MAX_ATTEMPTS = 20; // 安全な場所を探す最大試行回数
+
+				for(int i = 0; i < MAX_ATTEMPTS; ++i)
+				{
+					// プレイヤーの周囲360度からランダムな方向・距離を決定
+					float angle = (float)(rand() % 360) * 3.1415926f / 180.0f;
+					float spawnDistance = 200.0f + (float)(rand() % 150); // 指定範囲でランダム
+
+					VECTOR candidatePos;
+					candidatePos.x = playerPos.x + cosf(angle) * spawnDistance;
+					candidatePos.z = playerPos.z + sinf(angle) * spawnDistance;
+					candidatePos.y = playerPos.y;
+
+					// 地面との当たり判定チェック
+					VECTOR hitPos;
+					if(map.CheckCollision(candidatePos, 100.0f, hitPos))
+					{
+						candidatePos.y = hitPos.y;
+					}
+
+					// ★生成した位置がA*上で歩行可能なエリアかチェック
+					if(_pathfinder.IsWalkableWorldPos(candidatePos))
+					{
+						_pos = candidatePos;
+						spawnSuccess = true;
+						break; // 移動可能な安全な場所が見つかったのでループを抜ける
+					}
+				}
+
+				// 万が一20回探しても見つからなかった場合はプレイヤーの直近（安全保証位置）に出現
+				if(!spawnSuccess)
+				{
+					_pos = playerPos; // 必要に応じて調整
+				}
+
+				// 追跡状態をリセットし、次のフレームで即座にA*探索を走らせる
+				_path.clear();
+				_pathIndex = 0;
+				recalcTimer = 40;
+			}
+
+			// 消滅中はこれ以降の移動・コリジョン処理を行わずに抜ける
+			return;
+		}
 	}
 
 	// 敵とプレイヤーの直線距離を計算
@@ -95,7 +145,7 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 
 	// 遠距離時の従来のA*処理 ---
 
-	static int recalcTimer = 0;
+	
 	recalcTimer++;
 
 	// 一定時間ごとに経路を再計算する
@@ -140,6 +190,8 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 
 void Enemy::Render()
 {
+	if(_stamina.IsExhausted()) return;
+
 	if(_imageHandle == -1) return;
 
 	//デバッグ用

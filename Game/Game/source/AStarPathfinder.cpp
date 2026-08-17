@@ -148,6 +148,16 @@ Node* AStarPathfinder::GetNodeAtWorld(VECTOR worldPos)
 	return &_grid[index];
 }
 
+// 指定したワールド座標が歩行可能なエリア（ノード）か判定する
+bool AStarPathfinder::IsWalkableWorldPos(VECTOR& worldPos) 
+{
+	Node* node = GetNodeAtWorld(worldPos);
+	if(!node) return false;
+
+	// ノードが有効かつ歩行可能かを返す
+	return (node->isValid && node->isWalkable);
+}
+
 // ノード間の距離を計算する（ユークリッド距離）
 float AStarPathfinder::CalculateDistance(const Node& a, const Node& b) const 
 {
