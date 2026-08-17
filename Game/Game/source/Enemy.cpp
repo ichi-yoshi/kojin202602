@@ -190,8 +190,6 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 
 void Enemy::Render()
 {
-	if(_stamina.IsExhausted()) return;
-
 	if(_imageHandle == -1) return;
 
 	//デバッグ用
@@ -202,15 +200,18 @@ void Enemy::Render()
 	}
 	
 	// 敵キャラの位置に画像（ビルボード）を描画
-	if(_imageHandle != -1)
+	if(!_stamina.IsExhausted())
 	{
-		VECTOR renderPos = _pos;
-		renderPos.y += 70.0f;	
+		if(_imageHandle != -1)
+		{
+			VECTOR renderPos = _pos;
+			renderPos.y += 70.0f;
 
-		// 3D空間上の敵の座標に、カメラを常に向く画像（ビルボード）を描画する
-		DrawBillboard3D(renderPos, 0.5f, 0.5f, 200.0f, 0.0f, _imageHandle, TRUE);
+			// 3D空間上の敵の座標に、カメラを常に向く画像（ビルボード）を描画する
+			DrawBillboard3D(renderPos, 0.5f, 0.5f, 200.0f, 0.0f, _imageHandle, TRUE);
+		}
 	}
-
+	
 	// デバッグ用
 	DrawFormatString(0, 0, Color::White(), "Enemy Pos: (%.2f, %.2f, %.2f)", _pos.x, _pos.y, _pos.z);
 	DrawFormatString(0, 20, Color::White(), "Enemy Stamina: %.1f / %.1f (%s)",
