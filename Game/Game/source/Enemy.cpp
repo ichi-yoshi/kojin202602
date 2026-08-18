@@ -10,7 +10,7 @@ Enemy::Enemy()
 	_imageHandle = -1;
 	_pathIndex = 0;
 
-	_stamina.Initialize(100.0f, 0.3f, 0.01f);
+	_stamina.Initialize(100.0f, 0.01f, 0.01f);
 }
 
 void Enemy::Initialize(const Map& map) 
@@ -66,7 +66,7 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 			if(!_stamina.IsExhausted())
 			{
 				bool spawnSuccess = false;
-				const int MAX_ATTEMPTS = 20; // 安全な場所を探す最大試行回数
+				const int MAX_ATTEMPTS = 60; // 安全な場所を探す最大試行回数
 
 				for(int i = 0; i < MAX_ATTEMPTS; ++i)
 				{
@@ -86,7 +86,7 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 						candidatePos.y = hitPos.y;
 					}
 
-					// ★生成した位置がA*上で歩行可能なエリアかチェック
+					// 生成した位置がA*上で歩行可能なエリアかチェック
 					if(_pathfinder.IsWalkableWorldPos(candidatePos))
 					{
 						_pos = candidatePos;
@@ -95,11 +95,11 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 					}
 				}
 
-				// 万が一20回探しても見つからなかった場合はプレイヤーの直近（安全保証位置）に出現
-				if(!spawnSuccess)
-				{
-					_pos = playerPos; // 必要に応じて調整
-				}
+				//// 万が一探しても見つからなかった場合はプレイヤーの直近（安全保証位置）に出現
+				//if(!spawnSuccess)
+				//{
+				//	_pos = playerPos; // 必要に応じて調整
+				//}
 
 				// 追跡状態をリセットし、次のフレームで即座にA*探索を走らせる
 				_path.clear();
@@ -144,8 +144,6 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 	}
 
 	// 遠距離時の従来のA*処理 ---
-
-	
 	recalcTimer++;
 
 	// 一定時間ごとに経路を再計算する
@@ -186,6 +184,40 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 	{
 		_pos.y = hitPos.y;
 	}
+}
+
+bool Enemy::IsInScreenCenter(float targetRadiusPixels)
+{
+	// スタミナ切れ中は画面中央判定を無効化
+	if(_stamina.IsExhausted()) return false; 
+
+	VECTOR checkPos = _pos;
+	checkPos.y += 70.0f; // 敵の頭上付近を判定対象にする
+
+	// ワールド座標をスクリーン座標に変換
+	VECTOR screenPos = ConvWorldPosToScreenPos(checkPos);
+
+	if(screenPos.z < 0.0f || screenPos.z>1.0f) 
+	{
+		return false;
+	}
+
+	// 画面中央の範囲を計算
+	int screenWidth = Layout::Screen.w;
+	int screenHeight = Layout::Screen.h;
+	GetScreenState(&screenWidth, &screenHeight,NULL);
+
+	// 画面中央の座標を計算
+	float centerX = screenWidth / 2.0f;
+	float centerY = screenHeight / 2.0f;
+
+	// 画面中央からの距離を計算
+	float dx = screenPos.x - centerX;
+	float dy = screenPos.y - centerY;
+	float distFromCenter = sqrtf(dx * dx + dy * dy);
+
+	// 画面中央からの距離が指定された半径以内かどうかを判定
+	return distFromCenter <= targetRadiusPixels;
 }
 
 void Enemy::Render()

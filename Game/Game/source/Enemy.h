@@ -16,6 +16,8 @@ public:
 	// A*経路探索のセットアップ
 	void SetupAStar(const Map& map);
 	
+	// 敵が画面中央の範囲内にいるかを判定する
+	bool IsInScreenCenter(float targetRadiusPixels = 100.0f);
 private:
 	VECTOR _pos;        // 敵の現在位置
 	float _speed;       // 敵の移動速度

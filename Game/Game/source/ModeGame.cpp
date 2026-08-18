@@ -50,6 +50,11 @@ bool ModeGame::Process()
 	_enemy.Update(_map, _player.GetPosition());
 
 	_map.SetCollisionVisible(_player.IsViewCollision());
+
+    if(_enemy.IsInScreenCenter(150.0f)) 
+    {
+		gameScore += 10; // 敵が画面中央にいる場合、スコアを加算
+    }
 	return true;
 }
 
@@ -84,6 +89,32 @@ bool ModeGame::Render()
     _player.Render();
     _map.Render();
 	_enemy.Render();
+
+    // UI描画処理の例（Renderなどの後半で呼び出す）
+
+    int screenWidth = 0, screenHeight = 0;
+    GetScreenState(&screenWidth, &screenHeight, NULL);
+    int centerX = screenWidth / 2;
+    int centerY = screenHeight / 2;
+
+    float targetRadius = 150.0f; // 判定範囲の半径
+
+    // 中央の判定エリアを円で描画
+    if(_enemy.IsInScreenCenter(targetRadius))
+    {
+        // 捕捉中：緑色の円とクロスヘア
+        DrawCircle(centerX, centerY, (int)targetRadius, Color::Green(), FALSE);
+        DrawPixel(centerX, centerY, Color::Green());
+    }
+    else
+    {
+        // 未捕捉：赤色（白）の円とクロスヘア
+        DrawCircle(centerX, centerY, (int)targetRadius, Color::White(), FALSE);
+        DrawPixel(centerX, centerY, Color::White());
+    }
+
+    // スコア表示
+    DrawFormatString(1120, 20, Color::White(), "SCORE: %d", gameScore);
 
     return true;
 }

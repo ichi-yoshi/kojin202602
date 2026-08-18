@@ -28,5 +28,7 @@ protected:
 		Ready
 	};
 
+	int gameScore = 0; // ゲームスコアを保持する変数
+
 	LoadState _loadState = LoadState::Loading;
 }; 
