@@ -2,11 +2,6 @@
 #include "appframe.h"
 #include "MouseInput.h"
 
-// 計算用マクロ
-#define	PI	(3.1415926535897932386f)
-#define	DEG2RAD(x)			( ((x) / 180.0f ) * PI )
-#define	RAD2DEG(x)			( ((x) * 180.0f ) / PI )
-
 class CameraBase
 {
 public:
@@ -41,9 +36,6 @@ private:
     VECTOR _vTarget;                // 注視点
     float _clipNear, _clipFar;      // クリップ距離
     float _camYaw, _camPitch;       // カメラの角度
-   
-    // FPS視点用パラメータ
-    float FPS_CAMERA_HEIGHT = 100.0f;  // カメラの高さ
 
     // 内部処理
     void HandleMouseInput();

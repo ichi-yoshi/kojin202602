@@ -271,16 +271,13 @@ std::vector<VECTOR> AStarPathfinder::FindPath(VECTOR starWorld, VECTOR goalWorld
 
 void AStarPathfinder::DebugRender()
 {
-	//名前空間の使用宣言
-	using namespace Color;
-
-	// 全グリッドマスの床位置を可視化（緑＝通行可能、赤＝通行不可）
-	for(const auto& node : _grid)
-	{
-		if(!node.isValid) continue; // 無効なマスは描画しない
-		unsigned int color = node.isWalkable ? Color::Green() : Color::Red();
-		DrawSphere3D(node.worldPos, 3.0f, 3, color, color, TRUE);
-	}
+	//// 全グリッドマスの床位置を可視化（緑＝通行可能、赤＝通行不可）
+	//for(const auto& node : _grid)
+	//{
+	//	if(!node.isValid) continue; // 無効なマスは描画しない
+	//	unsigned int color = node.isWalkable ? Color::Green() : Color::Red();
+	//	DrawSphere3D(node.worldPos, 3.0f, 3, color, color, TRUE);
+	//}
 
 	// 計算された最終ルートを太い青線で描画
 	if(_lastCalculatePath.size() > 1)

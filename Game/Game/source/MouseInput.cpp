@@ -1,4 +1,5 @@
 #include "MouseInput.h"
+#include "MagicNumberConfig.h"
 #include <cmath>
 
 MouseInput::MouseInput()
@@ -7,7 +8,7 @@ MouseInput::MouseInput()
 	_isMoving = false;
 	_prevMouseX = -1;
 	_prevMouseY = -1;
-	_mouseSensitivity = 0.002f;
+	_mouseSensitivity = INITIAL_MOUSE_SENSITIVITY;
 	_Yaw = 0.0f;
 	_Pitch = 0.0f;
 }
@@ -26,7 +27,7 @@ void MouseInput::Update(int key, float camrad, float mvSpeed)
 
 	// 入力があった場合のみ、カメラの向きに合わせて回転・移動ベクトルを計算する
 	float length = 0.0f;
-	if(VSize(v) > 0.f)
+	if(VSize(v) > 0.0f)
 	{
 		length = mvSpeed;
 		_isMoving = true;
@@ -57,14 +58,18 @@ void MouseInput::MousePointMovement()
 	_prevMouseX = mouseX;
 	_prevMouseY = mouseY;
 
+	// マウス感度を考慮してYawとPitchを更新
 	_Yaw = deltaX * _mouseSensitivity;
 	_Pitch = deltaY * _mouseSensitivity;
 }
 
 void MouseInput::ResetMousePointCenter() 
 {
+	int centerX = Layout::Screen.w / 2;
+	int centerY = Layout::Screen.h / 2;
+
 	// 毎フレーム中央に戻す
-	SetMousePoint(SCREEN_CENTER_X, SCREEN_CENTER_Y);
-	_prevMouseX = SCREEN_CENTER_X;
-	_prevMouseY = SCREEN_CENTER_Y;
+	SetMousePoint(centerX, centerY);
+	_prevMouseX = centerX;
+	_prevMouseY = centerY;
 }

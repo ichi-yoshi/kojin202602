@@ -1,5 +1,6 @@
 #pragma once
 
+//.mv1のパスをまとめた名前空間
 namespace mv1
 {
 	inline constexpr const char* SkySphere = "res/SkySphere/skysphere.mv1";
@@ -12,6 +13,7 @@ namespace mv1
 	inline constexpr const char* Chara = "res/SDChar/SDChar.mv1";
 }
 
+// 3Dモデルのコリジョン用の名前空間
 namespace collision
 {
 	inline constexpr const char* DungeonCollision = "dungeon_collision";
@@ -19,6 +21,7 @@ namespace collision
 	inline constexpr const char* MapCollision = "collision";
 }
 
+// 敵の画像リソースのパスをまとめた名前空間
 namespace image
 {
 	inline constexpr const char* Enemy1 = "res/enemy/enemy1.png";

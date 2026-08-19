@@ -17,12 +17,15 @@ public:
 	// 移動しようとしているかどうか（キー入力があったか）
 	bool IsMoving() const { return _isMoving; }
 
+	// マウスの移動量を計算してYawとPitchを更新する
 	void MousePointMovement();
 
+	// マウス感度を取得するゲッター
 	float GetMouseSensitivity() const { return _mouseSensitivity; }
 	float GetYaw() const { return _Yaw; }
 	float GetPitch() const { return _Pitch; }
 
+	// マウスカーソルを画面中央に戻す
 	void ResetMousePointCenter();
 private:
 	//キャラ移動用
@@ -37,7 +40,7 @@ private:
 	float _Yaw; // マウスの水平移動量
 	float _Pitch; // マウスの垂直移動量
 
-	int SCREEN_CENTER_X = 1920 / 2;       // 画面中央X座標
-	int SCREEN_CENTER_Y = 1080 / 2;       // 画面中央Y座標
+private:
+	static constexpr float INITIAL_MOUSE_SENSITIVITY = 0.002f; // 初期マウス感度
 };
 

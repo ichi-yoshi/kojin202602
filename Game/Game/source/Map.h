@@ -11,7 +11,7 @@ public:
 	void Terminate();
 	void Render();
 
-	// コリジョン判定
+	// コリジョン判定(スタート位置、コリジョン判定用のY座標補正値、衝突位置を返す)
 	bool CheckCollision(const VECTOR& startPos, float colSubY, VECTOR& outHitPos) const;
 
 	// コリジョン判定用のフレームを可視化するかどうか

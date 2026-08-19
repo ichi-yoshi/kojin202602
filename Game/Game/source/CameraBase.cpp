@@ -1,5 +1,6 @@
 #include "CameraBase.h"
 #include "ApplicationMain.h"
+#include "MagicNumberConfig.h"
 
 CameraBase::CameraBase()
 {
@@ -55,8 +56,11 @@ void CameraBase::HandleMouseInput()
 
 void CameraBase::UpdateFPSCamera(VECTOR playerPos)
 {
+    // FPS視点のカメラ高さ
+	int cameraHeight = GameConfig::FPS_CAMERA_HEIGHT; 
+
     // FPS視点のカメラ位置と向き
-    _vPos = VAdd(playerPos, VGet(0, FPS_CAMERA_HEIGHT, 0)); // プレイヤーの頭部
+    _vPos = VAdd(playerPos, VGet(0, cameraHeight, 0)); // プレイヤーの頭部
 
     VECTOR forward = VGet(
         cos(_camPitch) * sin(_camYaw),

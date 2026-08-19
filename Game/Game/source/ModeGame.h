@@ -27,8 +27,7 @@ protected:
 		Setup,
 		Ready
 	};
+	LoadState _loadState = LoadState::Loading;
 
 	int gameScore = 0; // ゲームスコアを保持する変数
-
-	LoadState _loadState = LoadState::Loading;
 }; 

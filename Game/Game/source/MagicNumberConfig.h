@@ -1,6 +1,11 @@
 #pragma once
 #include "appframe.h"
 
+// 計算用マクロ
+#define	PI	(3.1415926535897932386f)
+#define	DEG2RAD(x)			( ((x) / 180.0f ) * PI )
+#define	RAD2DEG(x)			( ((x) * 180.0f ) / PI )
+
 // 2D座標やサイズをまとめた名前空間
 namespace Layout
 {
@@ -50,4 +55,12 @@ namespace Alpha
 	constexpr int Semi = 128;	// 半透明
 	constexpr int Light = 100;	// 明るい透明度
 	constexpr int Dark = 50;	// 暗い透明度
+}
+
+// ゲーム内で使用するマジックナンバーをまとめた名前空間
+namespace GameConfig 
+{
+	constexpr float FPS_CAMERA_HEIGHT = 100.0f;		// FPS視点用カメラの高さ
+	constexpr float ENEMY_HEIGHT = 70.0f;			// 敵の頭上付近の高さ
+	constexpr float COL_OFFSET_Y = 40.0f;			// コリジョンオフセットY（腰の高さ）
 }

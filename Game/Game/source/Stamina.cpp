@@ -2,10 +2,10 @@
 
 Stamina::Stamina()
 {
-	_current = 100.0f;
-	_max = 100.0f;
-	_recoveryRate = 0.3f;
-	_costRate = 1.0f;
+	_current = 0.0f;
+	_max = 0.0f;
+	_recoveryRate = 0.0f;
+	_costRate = 0.0f;
 	_isExhausted = false;
 }
 

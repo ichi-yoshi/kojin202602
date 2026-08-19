@@ -114,6 +114,7 @@ bool ModeGame::Render()
     }
 
     // スコア表示
+    //デバッグ用
     DrawFormatString(1120, 20, Color::White(), "SCORE: %d", gameScore);
 
     return true;

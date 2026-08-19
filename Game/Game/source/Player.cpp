@@ -26,15 +26,15 @@ void Player::Initialize()
 	_attachIndex = -1;
 	_totalTime = 0.0f;
 	_playTime = 0.0f;
-	_vPos = VGet(100, 0, 0);
+	_vPos = INITIAL_POS;
 	_vDir = VGet(0, 0, -1);
 	_vVelocity = VGet(0, 0, 0);
-	_colSubY = 40.0f;
+	_colSubY = GameConfig::COL_OFFSET_Y;
 	_status = STATUS::NONE;
 	_bViewCollision = true;
 
 	// スタミナの初期化（最大値、回復率、消費率）
-	_stamina.Initialize(30.0f, 0.1f, 0.3f);
+	_stamina.Initialize(STAMINA_MAX, STAMINA_RECOVERY_RATE, STAMINA_COST_RATE);
 }
 
 void Player::Terminate()
@@ -83,7 +83,7 @@ VECTOR Player::CalculateMovementVector(CameraBase& camera, int key)
 	float camrad = atan2(camPos.z - camTarget.z, camPos.x - camTarget.x);
 
 	// Shiftキー押下 かつ スタミナ切れでない場合はダッシュ最高速度をセット
-	bool isShiftPressed = (CheckHitKey(KEY_INPUT_LSHIFT) == 1 || CheckHitKey(KEY_INPUT_RSHIFT) == 1);
+	bool isShiftPressed = (CheckHitKey(KEY_INPUT_LSHIFT) == 1);
 	float currentMaxSpeed = (isShiftPressed && !_stamina.IsExhausted()) ? DASH_SPEED : MAX_SPEED;
 
 	_mouseInput.Update(key, camrad, currentMaxSpeed);
@@ -132,7 +132,7 @@ void Player::MoveWithCollision(const Map& map, const VECTOR& baseVelocity, float
 	bool isShiftPressed = (CheckHitKey(KEY_INPUT_LSHIFT) == 1);
 	if(moveDistance > 0.1f && isShiftPressed && !_stamina.IsExhausted())
 	{
-		_stamina.Consume(moveDistance * 0.1f); // キーを押している間はスタミナを消費
+		_stamina.Consume(moveDistance * STAMINA_COST_RATE); // キーを押している間はスタミナを消費
 	}
 	else
 	{
@@ -194,7 +194,7 @@ void Player::UpdateAnimation(STATUS oldStatus)
 {
 	if(oldStatus == _status)
 	{
-		_playTime += 0.5f;
+		_playTime += ANIMATION_SPEED;
 	}
 	else
 	{
@@ -246,10 +246,13 @@ void Player::Render()
 
 	//MV1DrawModel(_handle);
 
+	//デバッグ用
+	// スタミナの表示
 	DrawFormatString(0, 40, Color::White(), "Player Stamina: %.1f / %.1f (%s)",
 		_stamina.GetCurrent(), _stamina.GetMax(), _stamina.IsExhausted() ? "EXHAUSTED" : "OK");
 
-	// デバッグ用コリジョンラインの描画
+	// デバッグ用
+	// コリジョンラインの描画
 	if(_bViewCollision)
 	{
 		DrawLine3D(VAdd(_vPos, VGet(0.0f, _colSubY, 0.0f)), VAdd(_vPos, VGet(0.0f, -99999.0f, 0.0f)), Color::Red());
