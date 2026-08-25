@@ -25,8 +25,7 @@ private:
 	int _handleSkySphere;	// 空のモデルのハンドル
 	int _frameMapCollision;	// マップのコリジョン判定用のフレームハンドル
 
-	// デバッグ用の線描画
-	VECTOR lineStart;
-	VECTOR lineEnd;
+	VECTOR lineStart;	// 線の開始位置
+	VECTOR lineEnd;		// 線の終了位置
 };
 

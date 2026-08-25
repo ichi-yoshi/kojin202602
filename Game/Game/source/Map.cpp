@@ -1,5 +1,6 @@
 #include "Map.h"
 #include "Resource.h"
+#include "MagicNumberConfig.h"
 
 Map::Map() 
 {
@@ -62,7 +63,7 @@ bool Map::CheckCollision(const VECTOR& startPos, float colSubY, VECTOR& outHitPo
 
 	// コリジョン判定用のラインを設定
 	VECTOR lineStart = VAdd(startPos, VGet(0.0f, colSubY, 0.0f));
-	VECTOR lineEnd = VAdd(startPos, VGet(0.0f, -9999.0f, 0.0f));
+	VECTOR lineEnd = VAdd(startPos, VGet(0.0f, GameConfig::RAY_DOWN_LENGTH, 0.0f));
 
 	// ラインとコリジョンの交差判定
 	MV1_COLL_RESULT_POLY hitPoly = MV1CollCheck_Line(_handleMap, _frameMapCollision, lineStart, lineEnd);

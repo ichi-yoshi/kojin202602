@@ -27,6 +27,7 @@ public:
 
 	// マウスカーソルを画面中央に戻す
 	void ResetMousePointCenter();
+
 private:
 	//キャラ移動用
 	VECTOR _vMove;      // 計算された移動ベクトル
@@ -37,8 +38,8 @@ private:
 	int _prevMouseY;   
 	float _mouseSensitivity; // マウス感度
 
-	float _Yaw; // マウスの水平移動量
-	float _Pitch; // マウスの垂直移動量
+	float _Yaw;			// マウスの水平移動量
+	float _Pitch;		// マウスの垂直移動量
 
 private:
 	static constexpr float INITIAL_MOUSE_SENSITIVITY = 0.002f; // 初期マウス感度

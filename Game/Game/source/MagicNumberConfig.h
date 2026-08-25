@@ -63,4 +63,5 @@ namespace GameConfig
 	constexpr float FPS_CAMERA_HEIGHT = 100.0f;		// FPS視点用カメラの高さ
 	constexpr float ENEMY_HEIGHT = 70.0f;			// 敵の頭上付近の高さ
 	constexpr float COL_OFFSET_Y = 40.0f;			// コリジョンオフセットY（腰の高さ）
+	static constexpr float RAY_DOWN_LENGTH = -9999.0f;	// 下方向へのレイの長さ（地面判定用）
 }
