@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Map.h"
 #include "Enemy.h"
+#include "Score.h"
 
 // モード
 class ModeGame : public ModeBase
@@ -20,6 +21,7 @@ protected:
 	Player _player;
 	Map _map;
 	Enemy _enemy;
+	Score _score;
 
 	enum class LoadState 
 	{
@@ -28,6 +30,4 @@ protected:
 		Ready
 	};
 	LoadState _loadState = LoadState::Loading;
-
-	int gameScore = 0; // ゲームスコアを保持する変数
 }; 

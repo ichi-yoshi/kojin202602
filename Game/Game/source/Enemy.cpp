@@ -58,6 +58,17 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 	// 経路再計算のフレーム間隔を管理するための静的変数
 	static int recalcTimer = 0;
 
+	if(IsInScreenCenter(GameConfig::LOOK_CENTER_RADIUS))
+	{
+		VECTOR enemyPos = VAdd(_pos, VGet(0.0f, GameConfig::ENEMY_HEIGHT, 0.0f));
+		VECTOR hitPos;
+		if(map.CheckCollision(enemyPos, 40.0f, hitPos))
+		{
+			// 画面中央にいる場合はスタミナを消費しない
+			_stamina.Consume(_speed);
+		}
+	}
+
 	// スタミナが尽きている場合の処理
 	if(_stamina.IsExhausted())
 	{
@@ -131,11 +142,7 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 			// 障害物がない前提で、プレイヤーの方向に直接スムーズに移動する
 			VECTOR dir = VNorm(toPlayer);
 			_pos = VAdd(_pos, VScale(dir, _speed));
-			_stamina.Consume(VSize(VScale(dir, _speed)));
-		}
-		else
-		{
-			_stamina.Recover(); // 移動停止中は回復
+			//_stamina.Consume(VSize(VScale(dir, _speed)));
 		}
 
 		// 足元の床高さに吸着
@@ -171,12 +178,8 @@ void Enemy::Update(const Map& map, VECTOR playerPos)
 		{
 			VECTOR dir = VNorm(toTarget);
 			_pos = VAdd(_pos, VScale(dir, _speed));
-			_stamina.Consume(VSize(VScale(dir, _speed)));
+			//_stamina.Consume(VSize(VScale(dir, _speed)));
 		}
-	}
-	else
-	{
-		_stamina.Recover(); // 移動していない場合は回復
 	}
 
 	// 足元の床高さに吸着

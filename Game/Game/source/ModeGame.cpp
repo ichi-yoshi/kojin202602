@@ -51,9 +51,9 @@ bool ModeGame::Process()
 
 	_map.SetCollisionVisible(_player.IsViewCollision());
 
-    if(_enemy.IsInScreenCenter(150.0f)) 
+    if(_enemy.IsInScreenCenter(GameConfig::LOOK_CENTER_RADIUS)) 
     {
-		gameScore += 10; // 敵が画面中央にいる場合、スコアを加算
+		_score.AddScore(1); // スコアを加算
     }
 	return true;
 }
@@ -114,8 +114,8 @@ bool ModeGame::Render()
     }
 
     // スコア表示
-    //デバッグ用
-    DrawFormatString(1120, 20, Color::White(), "SCORE: %d", gameScore);
+    // デバッグ用
+    _score.Render();
 
     return true;
 }
