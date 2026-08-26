@@ -1,6 +1,10 @@
 #include "EnemyBase.h"
 #include "Map.h"
 #include "MagicNumberConfig.h"
+#include <random>
+
+static std::random_device rd;
+static std::mt19937 gen(rd());
 
 EnemyBase::EnemyBase(const EnemyData& data) 
 {
@@ -9,6 +13,7 @@ EnemyBase::EnemyBase(const EnemyData& data)
 	_speed = data.speed;
 	_imageHandle = -1;
 	_pathIndex = 0;
+	_recalcTimer = 0;
 
 	// スタミナの初期化（最大値、回復率、消費率）
 	_stamina.Initialize(_param.staminaMax, _param.staminaRecoveryRate, _param.staminaCostRate);
@@ -43,11 +48,43 @@ void EnemyBase::SetupAStar(const Map& map)
 	_pathfinder.BuildGridFromMap(map, mapMin, CELL_SIZE, gridWidth, gridHeight);
 }
 
+bool EnemyBase::SetRandomSpawnPos(const Map& map, VECTOR playerPos) 
+{
+	// 角度 (0～360度) と 距離 (MIN_SPAWN_DIST ～ MIN + RAND) の分布を定義
+	std::uniform_real_distribution<float> angleDist(0.0f, 360.0f);
+	std::uniform_real_distribution<float> distDist(MIN_SPAWN_DIST, MIN_SPAWN_DIST + RAND_SPAWN_DIST);
+
+	for(int i = 0; i < MAX_ATTEMPTS; ++i)
+	{
+		// 毎回新しくランダムな角度と距離を取得
+		float angle = angleDist(gen) * DEG2RAD(1);
+		float spawnDistance = distDist(gen);
+
+		VECTOR candidatePos;
+		candidatePos.x = playerPos.x + cosf(angle) * spawnDistance;
+		candidatePos.z = playerPos.z + sinf(angle) * spawnDistance;
+		candidatePos.y = playerPos.y;
+
+		// 地面との当たり判定
+		VECTOR hitPos;
+		if(map.CheckCollision(candidatePos, 100.0f, hitPos))
+		{
+			candidatePos.y = hitPos.y;
+		}
+
+		// A*探索上で歩行可能なマスか確認
+		if(_pathfinder.IsWalkableWorldPos(candidatePos))
+		{
+			_pos = candidatePos; // 個別に異なる座標をセット
+			return true;
+		}
+	}
+	_pos=_param.initialPos;
+	return false; // 安全な位置が見つからなかった場合はfalseを返す
+}
+
 void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score) 
 {
-	// 経路再計算のフレーム間隔を管理するための静的変数
-	static int recalcTimer = 0;
-
 	if(IsInScreenCenter(GameConfig::LOOK_CENTER_RADIUS))
 	{
 		VECTOR enemyPos = VAdd(_pos, VGet(0.0f, GameConfig::ENEMY_HEIGHT, 0.0f));
@@ -72,34 +109,7 @@ void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score)
 			if(!_stamina.IsExhausted())
 			{
 				// プレイヤーの周囲に安全な位置を探す
-				bool spawnSuccess = false;
-
-				for(int i = 0; i < MAX_ATTEMPTS; ++i)
-				{
-					// プレイヤーの周囲360度からランダムな方向・距離を決定
-					float angle = (float)(rand() % 360) * DEG2RAD(1);
-					float spawnDistance = MIN_SPAWN_DIST + (float)(rand() % static_cast<int>(RAND_SPAWN_DIST)); // プレイヤーからの距離をランダムに設定
-
-					VECTOR candidatePos;
-					candidatePos.x = playerPos.x + cosf(angle) * spawnDistance;
-					candidatePos.z = playerPos.z + sinf(angle) * spawnDistance;
-					candidatePos.y = playerPos.y;
-
-					// 地面との当たり判定チェック
-					VECTOR hitPos;
-					if(map.CheckCollision(candidatePos, 100.0f, hitPos))
-					{
-						candidatePos.y = hitPos.y;
-					}
-
-					// 生成した位置がA*上で歩行可能なエリアかチェック
-					if(_pathfinder.IsWalkableWorldPos(candidatePos))
-					{
-						_pos = candidatePos;
-						spawnSuccess = true;
-						break; // 移動可能な安全な場所が見つかったのでループを抜ける
-					}
-				}
+				SetRandomSpawnPos(map, playerPos);
 
 				//// 万が一探しても見つからなかった場合はプレイヤーの直近（安全保証位置）に出現
 				//if(!spawnSuccess)
@@ -110,7 +120,7 @@ void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score)
 				// 追跡状態をリセットし、次のフレームで即座にA*探索を走らせる
 				_path.clear();
 				_pathIndex = 0;
-				recalcTimer = RECALC_INTERVAL;
+				_recalcTimer = RECALC_INTERVAL;
 			}
 
 			// 消滅中はこれ以降の移動・コリジョン処理を行わずに抜ける
@@ -142,14 +152,14 @@ void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score)
 	}
 
 	// 遠距離時の従来のA*処理 ---
-	recalcTimer++;
+	_recalcTimer++;
 
 	// 一定時間ごとに経路を再計算する
-	if(recalcTimer >= RECALC_INTERVAL || _path.empty())
+	if(_recalcTimer >= RECALC_INTERVAL || _path.empty())
 	{
 		_path = _pathfinder.FindPath(_pos, playerPos);
 		_pathIndex = 0;
-		recalcTimer = 0;
+		_recalcTimer = 0;
 	}
 
 	// 経路に沿って移動する

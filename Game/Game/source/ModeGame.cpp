@@ -13,7 +13,8 @@ bool ModeGame::Initialize()
 	_map.Initialize();
 	_player.Initialize();
     _gameWave.Initialize();
-	//_enemy.Initialize(_map);
+
+    SpawnEnemiesForCurrentWave();
 
     _enemies.clear();
     int targetCount = _gameWave.GetTargetEnemyCount();
@@ -37,6 +38,33 @@ bool ModeGame::Terminate()
 	_player.Terminate();
 	_map.Terminate();
 	return true;
+}
+
+// 敵の生成と配置を一括管理するヘルパー関数
+void ModeGame::SpawnEnemiesForCurrentWave()
+{
+    _enemies.clear(); // 前のウェーブの敵を消去
+    int targetCount = _gameWave.GetTargetEnemyCount(); 
+        int currentWave = _gameWave.GetCurrentWaveNumber();
+
+    for(int i = 0; i < targetCount; ++i)
+    {
+        auto enemy = std::make_unique<EnemyInfo>(EnemyType::Enemy1);
+            enemy->Initialize(_map);
+
+            // 1ウェーブ目は固定初期位置（重なり防止でずらす）、2ウェーブ目以降はランダム出現
+            if(currentWave <= 1)
+            {
+                VECTOR spawnPos = EnemyType::Enemy1.initialPos;
+            }
+            else
+            {
+                // プレイヤーの周囲にランダム出現させる
+                enemy->SetRandomSpawnPos(_map, _player.GetPosition());
+            }
+
+        _enemies.push_back(std::move(enemy));
+    }
 }
 
 bool ModeGame::Process() 
@@ -64,8 +92,6 @@ bool ModeGame::Process()
     _gameWave.Update(deltaTime);
 
 	_player.Update(_cam, _map);
-	/*_enemy.Update(_map, _player.GetPosition(), _score);
-	_enemy.AttacktoPlayer(_player.GetPosition(), _score);*/
 
     for(auto& enemy : _enemies)
     {
@@ -88,15 +114,17 @@ bool ModeGame::Process()
 		{
 			// 次のウェーブに進む
 			_gameWave.StartNextWave();
-			// 新しい敵を生成して初期化
-			int targetCount = _gameWave.GetTargetEnemyCount();
-			_enemies.clear(); // 前の敵をクリア
-			for(int i = 0; i < targetCount; ++i)
-			{
-				auto enemy = std::make_unique<EnemyInfo>(EnemyType::Enemy1);
-				enemy->Initialize(_map);
-				_enemies.push_back(std::move(enemy));
-			}
+            SpawnEnemiesForCurrentWave();
+			//// 新しい敵を生成して初期化
+			//int targetCount = _gameWave.GetTargetEnemyCount();
+			//_enemies.clear(); // 前の敵をクリア
+
+			//for(int i = 0; i < targetCount; ++i)
+			//{
+			//	auto enemy = std::make_unique<EnemyInfo>(EnemyType::Enemy1);
+			//	enemy->Initialize(_map);
+			//	_enemies.push_back(std::move(enemy));
+			//}
 		}
     }
 
@@ -133,7 +161,6 @@ bool ModeGame::Render()
     // 描画
     _player.Render();
     _map.Render();
-	_enemy.Render();
 
     // UI描画処理の例（Renderなどの後半で呼び出す）
 
@@ -157,7 +184,7 @@ bool ModeGame::Render()
     int centerY = screenHeight / 2;
 
     // 中央の判定エリアを円で描画
-    if(_enemy.IsInScreenCenter(targetRadius))
+    if(isAnyEnemyInCenter)
     {
         // 捕捉中：緑色の円とクロスヘア
         DrawCircle(centerX, centerY, (int)targetRadius, Color::Green(), FALSE);

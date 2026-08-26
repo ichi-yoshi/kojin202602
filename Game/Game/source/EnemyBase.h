@@ -31,10 +31,13 @@ public:
 
 	bool IsExhausted() const { return _stamina.IsExhausted(); }
 	VECTOR GetPos() const { return _pos; }
+
+	virtual bool SetRandomSpawnPos(const Map& map, VECTOR playerPos);
 protected:
 	VECTOR _pos;
 	float _speed;
 	int _imageHandle;
+	int _recalcTimer;
 
 	AStarPathfinder _pathfinder;
 	std::vector<VECTOR> _path;
@@ -49,8 +52,8 @@ protected:
 	static constexpr int MAX_ATTEMPTS = 60;			// 安全な位置を探す最大試行回数
 	static constexpr int RECALC_INTERVAL = 40;		// 経路再計算のフレーム間隔
 
-	static constexpr int MIN_SPAWN_DIST = 200.0f;	// プレイヤーからの最小出現距離
-	static constexpr int RAND_SPAWN_DIST = 150.0f;	// プレイヤーからのランダム出現距離
+	static constexpr int MIN_SPAWN_DIST = 400.0f;	// プレイヤーからの最小出現距離
+	static constexpr int RAND_SPAWN_DIST = 250.0f;	// プレイヤーからのランダム出現距離
 
 };
 
