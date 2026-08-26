@@ -3,6 +3,7 @@
 #include <vector>
 #include "AStarPathfinder.h"
 #include "Stamina.h"
+#include "Score.h"
 
 class Enemy
 {
@@ -10,7 +11,7 @@ public:
     Enemy();
 	~Enemy() = default;
     void Initialize(const Map& map);
-    void Update(const Map& map, VECTOR playerPos);
+    void Update(const Map& map, VECTOR playerPos, Score& score);
     void Render();
 
 	// A*経路探索のセットアップ
@@ -18,6 +19,9 @@ public:
 	
 	// 敵が画面中央の範囲内にいるかを判定する
 	bool IsInScreenCenter(float targetRadiusPixels = 100.0f);
+
+	// 敵の攻撃
+	void AttacktoPlayer(VECTOR playerPos, Score& score);
 private:
 	VECTOR _pos;        // 敵の現在位置
 	float _speed;       // 敵の移動速度
@@ -27,6 +31,7 @@ private:
 	std::vector<VECTOR> _path;      // 計算された経路の座標リスト
 	int _pathIndex;	// 現在の経路上のターゲットインデックス
 	Stamina _stamina; // 敵のスタミナ
+	Score _score;     // 敵のスコア管理
 
 private:
 	// 敵の初期設定値

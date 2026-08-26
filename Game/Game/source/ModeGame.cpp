@@ -12,7 +12,18 @@ bool ModeGame::Initialize()
 	
 	_map.Initialize();
 	_player.Initialize();
-	_enemy.Initialize(_map);
+    _gameWave.Initialize();
+	//_enemy.Initialize(_map);
+
+    _enemies.clear();
+    int targetCount = _gameWave.GetTargetEnemyCount();
+    for(int i = 0; i < targetCount; ++i)
+    {
+        // とりあえず通常の敵を生成して初期化
+        auto enemy = std::make_unique<EnemyInfo>(EnemyType::Enemy1);
+        enemy->Initialize(_map);
+        _enemies.push_back(std::move(enemy));
+    }
 
 	SetUseASyncLoadFlag(FALSE);
 
@@ -46,15 +57,49 @@ bool ModeGame::Process()
         }
     }
 
+    // 1フレームの経過時間（約0.016秒）
+    float deltaTime = 1.0f / 60.0f;
+
+    // ウェーブとタイマーの更新
+    _gameWave.Update(deltaTime);
+
 	_player.Update(_cam, _map);
-	_enemy.Update(_map, _player.GetPosition());
+	/*_enemy.Update(_map, _player.GetPosition(), _score);
+	_enemy.AttacktoPlayer(_player.GetPosition(), _score);*/
+
+    for(auto& enemy : _enemies)
+    {
+        enemy->Update(_map, _player.GetPosition(), _score);
+        enemy->AttackToPlayer(_player.GetPosition(), _score);
+    }
 
 	_map.SetCollisionVisible(_player.IsViewCollision());
 
-    if(_enemy.IsInScreenCenter(GameConfig::LOOK_CENTER_RADIUS)) 
+	// ウェーブの制限時間が切れた場合の処理
+    if(_gameWave.IsTimeUp())
     {
-		_score.AddScore(1); // スコアを加算
+        // 時間切れ処理（ウェーブ進行、またはゲームオーバーなど）
+		if(_gameWave.IsGameCleared())
+		{
+			// ゲームクリア処理
+			// ここにゲームクリア時の処理を追加
+		}
+		else
+		{
+			// 次のウェーブに進む
+			_gameWave.StartNextWave();
+			// 新しい敵を生成して初期化
+			int targetCount = _gameWave.GetTargetEnemyCount();
+			_enemies.clear(); // 前の敵をクリア
+			for(int i = 0; i < targetCount; ++i)
+			{
+				auto enemy = std::make_unique<EnemyInfo>(EnemyType::Enemy1);
+				enemy->Initialize(_map);
+				_enemies.push_back(std::move(enemy));
+			}
+		}
     }
+
 	return true;
 }
 
@@ -92,12 +137,24 @@ bool ModeGame::Render()
 
     // UI描画処理の例（Renderなどの後半で呼び出す）
 
+    bool isAnyEnemyInCenter = false;
+    float targetRadius = 150.0f;
+
+    for(auto& enemy : _enemies)
+    {
+        enemy->Render();
+
+        // 誰か一匹でも画面中央に入っているかチェック
+        if(enemy->IsInScreenCenter(targetRadius))
+        {
+            isAnyEnemyInCenter = true;
+        }
+    }
+
     int screenWidth = 0, screenHeight = 0;
     GetScreenState(&screenWidth, &screenHeight, NULL);
     int centerX = screenWidth / 2;
     int centerY = screenHeight / 2;
-
-    float targetRadius = 150.0f; // 判定範囲の半径
 
     // 中央の判定エリアを円で描画
     if(_enemy.IsInScreenCenter(targetRadius))
@@ -116,6 +173,7 @@ bool ModeGame::Render()
     // スコア表示
     // デバッグ用
     _score.Render();
-
+    DrawFormatString(10, 300, Color::White(), "WAVE : %d", _gameWave.GetCurrentWaveNumber());
+    DrawFormatString(10, 330, Color::White(), "TIME : %.1f sec", _gameWave.GetRemainingTime());
     return true;
 }

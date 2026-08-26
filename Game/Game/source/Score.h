@@ -15,6 +15,8 @@ public:
 
 	void AddScore(int points);
 
+	void SubtractScore(int points);
+
 	void ResetScore();
 
 private:

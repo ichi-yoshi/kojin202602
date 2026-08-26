@@ -30,6 +30,13 @@ void Score::AddScore(int points)
 	gameScore += points;
 }
 
+void Score::SubtractScore(int points)
+{
+	// スコアを減算
+	gameScore -= points;
+	if(gameScore < 0) gameScore = 0; // スコアが負にならないようにする
+}
+
 void Score::ResetScore()
 {
 	// スコアをリセット

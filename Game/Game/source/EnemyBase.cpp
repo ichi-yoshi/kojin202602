@@ -1,64 +1,52 @@
-#include "Enemy.h"
+#include "EnemyBase.h"
 #include "Map.h"
-#include "Resource.h"
 #include "MagicNumberConfig.h"
 
-Enemy::Enemy() 
+EnemyBase::EnemyBase(const EnemyData& data) 
 {
-	// 敵の初期化
-	_pos = VGet(0, 0, 0);
-	_speed = INITIAL_SPEED;
+	_param = data;
+	_pos = data.initialPos;
+	_speed = data.speed;
 	_imageHandle = -1;
 	_pathIndex = 0;
 
 	// スタミナの初期化（最大値、回復率、消費率）
-	_stamina.Initialize(STAMINA_MAX, STAMINA_RECOVERY_RATE, STAMINA_COST_RATE);
+	_stamina.Initialize(_param.staminaMax, _param.staminaRecoveryRate, _param.staminaCostRate);
 }
 
-void Enemy::Initialize(const Map& map) 
+void EnemyBase::Initialize(const Map& map) 
 {
-	// 敵の画像をロード
-	_imageHandle = LoadGraph(image::Enemy1);
+	if(_param.imagePath != nullptr) 
+	{
+		_imageHandle = LoadGraph(_param.imagePath);
+	}
 
 	SetupAStar(map);
-
-	// 敵を配置
-	_pos = INITIAL_POS;
+	_pos = _param.initialPos;
 }
 
-void Enemy::SetupAStar(const Map& map) 
-{
+void EnemyBase::SetupAStar(const Map& map) 
+{	
 	// 正しく取得した最小・最大座標
 	VECTOR mapMin = map.GetMinPosition();
 	VECTOR mapMax = map.GetMaxPosition();
-
-	// 中心座標を計算
-	VECTOR mapCenter;
-	mapCenter.x = (mapMin.x + mapMax.x) / 2.0f;
-	mapCenter.y = (mapMin.y + mapMax.y) / 2.0f;
-	mapCenter.z = (mapMin.z + mapMax.z) / 2.0f;
 
 	// マップの大きさを計算
 	float mapWidthX = mapMax.x - mapMin.x;
 	float mapLengthZ = mapMax.z - mapMin.z;
 
-	// 1マスのサイズ
-	float cellSize = CELL_SIZE;
-
 	// マップを覆うのに必要なマス数を計算
-	int gridWidth = static_cast<int>(ceilf(mapWidthX / cellSize));
-	int gridHeight = static_cast<int>(ceilf(mapLengthZ / cellSize));
+	int gridWidth = static_cast<int>(ceilf(mapWidthX / CELL_SIZE));
+	int gridHeight = static_cast<int>(ceilf(mapLengthZ / CELL_SIZE));
 
 	// A*グリッドの再構築
-	_pathfinder.BuildGridFromMap(map, mapMin, cellSize, gridWidth, gridHeight);
+	_pathfinder.BuildGridFromMap(map, mapMin, CELL_SIZE, gridWidth, gridHeight);
 }
 
-void Enemy::Update(const Map& map, VECTOR playerPos, Score& score)
+void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score) 
 {
 	// 経路再計算のフレーム間隔を管理するための静的変数
 	static int recalcTimer = 0;
-
-	_score = score; // スコアを更新
 
 	if(IsInScreenCenter(GameConfig::LOOK_CENTER_RADIUS))
 	{
@@ -192,10 +180,10 @@ void Enemy::Update(const Map& map, VECTOR playerPos, Score& score)
 	}
 }
 
-bool Enemy::IsInScreenCenter(float targetRadiusPixels)
+bool EnemyBase::IsInScreenCenter(float targetRadiusPixels)
 {
 	// スタミナ切れ中は画面中央判定を無効化
-	if(_stamina.IsExhausted()) return false; 
+	if(_stamina.IsExhausted()) return false;
 
 	VECTOR checkPos = _pos;
 	checkPos.y += GameConfig::ENEMY_HEIGHT; // 敵の頭上付近を判定対象にする
@@ -203,7 +191,7 @@ bool Enemy::IsInScreenCenter(float targetRadiusPixels)
 	// ワールド座標をスクリーン座標に変換
 	VECTOR screenPos = ConvWorldPosToScreenPos(checkPos);
 
-	if(screenPos.z < 0.0f || screenPos.z > 1.0f) 
+	if(screenPos.z < 0.0f || screenPos.z > 1.0f)
 	{
 		return false;
 	}
@@ -211,7 +199,7 @@ bool Enemy::IsInScreenCenter(float targetRadiusPixels)
 	// 画面中央の範囲を計算
 	int screenWidth = Layout::Screen.w;
 	int screenHeight = Layout::Screen.h;
-	GetScreenState(&screenWidth, &screenHeight,NULL);
+	GetScreenState(&screenWidth, &screenHeight, NULL);
 
 	// 画面中央の座標を計算
 	float centerX = screenWidth / 2.0f;
@@ -226,10 +214,8 @@ bool Enemy::IsInScreenCenter(float targetRadiusPixels)
 	return distFromCenter <= targetRadiusPixels;
 }
 
-void Enemy::AttacktoPlayer(VECTOR playerPos, Score& score)
+void EnemyBase::AttackToPlayer(VECTOR playerPos, Score& score)
 {
-	_score = score; // スコアを更新
-
 	// 攻撃処理
 	VECTOR toPlayer = VSub(playerPos, _pos);
 	float distToPlayer = VSize(toPlayer);
@@ -245,17 +231,10 @@ void Enemy::AttacktoPlayer(VECTOR playerPos, Score& score)
 	}
 }
 
-void Enemy::Render()
+void EnemyBase::Render()
 {
 	if(_imageHandle == -1) return;
 
-	//デバッグ用
-	// A*の床グリッドやルート線画を表示
-	if(CheckHitKey(KEY_INPUT_SPACE)) 
-	{
-		_pathfinder.DebugRender();
-	}
-	
 	// 敵キャラの位置に画像（ビルボード）を描画
 	if(!_stamina.IsExhausted())
 	{
@@ -268,7 +247,14 @@ void Enemy::Render()
 			DrawBillboard3D(renderPos, 0.5f, 0.5f, 200.0f, 0.0f, _imageHandle, TRUE);
 		}
 	}
-	
+
+	//デバッグ用
+	// A*の床グリッドやルート線画を表示
+	if(CheckHitKey(KEY_INPUT_SPACE))
+	{
+		_pathfinder.DebugRender();
+	}
+
 	// デバッグ用
 	DrawFormatString(0, 0, Color::White(), "Enemy Pos: (%.2f, %.2f, %.2f)", _pos.x, _pos.y, _pos.z);
 	DrawFormatString(0, 20, Color::White(), "Enemy Stamina: %.1f / %.1f (%s)",

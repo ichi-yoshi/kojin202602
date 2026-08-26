@@ -161,18 +161,25 @@
     <ClCompile Include="source\AStarPathfinder.cpp" />
     <ClCompile Include="source\CameraBase.cpp" />
     <ClCompile Include="source\Enemy.cpp" />
+    <ClCompile Include="source\EnemyInfo.cpp" />
+    <ClCompile Include="source\EnemyBase.cpp" />
+    <ClCompile Include="source\GameWave.cpp" />
     <ClCompile Include="source\Map.cpp" />
     <ClCompile Include="source\ModeGame.cpp" />
     <ClCompile Include="source\MouseInput.cpp" />
     <ClCompile Include="source\Player.cpp" />
     <ClCompile Include="source\Score.cpp" />
     <ClCompile Include="source\Stamina.cpp" />
+    <ClCompile Include="source\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\ApplicationMain.h" />
     <ClInclude Include="source\AStarPathfinder.h" />
     <ClInclude Include="source\CameraBase.h" />
     <ClInclude Include="source\Enemy.h" />
+    <ClInclude Include="source\EnemyInfo.h" />
+    <ClInclude Include="source\EnemyBase.h" />
+    <ClInclude Include="source\GameWave.h" />
     <ClInclude Include="source\MagicNumberConfig.h" />
     <ClInclude Include="source\Map.h" />
     <ClInclude Include="source\ModeGame.h" />
@@ -181,6 +188,7 @@
     <ClInclude Include="source\Resource.h" />
     <ClInclude Include="source\Score.h" />
     <ClInclude Include="source\Stamina.h" />
+    <ClInclude Include="source\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
