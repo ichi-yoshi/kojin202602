@@ -13,18 +13,8 @@ bool ModeGame::Initialize()
 	_map.Initialize();
 	_player.Initialize();
     _gameWave.Initialize();
-
+   
     SpawnEnemiesForCurrentWave();
-
-    _enemies.clear();
-    int targetCount = _gameWave.GetTargetEnemyCount();
-    for(int i = 0; i < targetCount; ++i)
-    {
-        // とりあえず通常の敵を生成して初期化
-        auto enemy = std::make_unique<EnemyInfo>(EnemyType::Enemy1);
-        enemy->Initialize(_map);
-        _enemies.push_back(std::move(enemy));
-    }
 
 	SetUseASyncLoadFlag(FALSE);
 
@@ -45,7 +35,7 @@ void ModeGame::SpawnEnemiesForCurrentWave()
 {
     _enemies.clear(); // 前のウェーブの敵を消去
     int targetCount = _gameWave.GetTargetEnemyCount(); 
-        int currentWave = _gameWave.GetCurrentWaveNumber();
+    int currentWave = _gameWave.GetCurrentWaveNumber();
 
     for(int i = 0; i < targetCount; ++i)
     {

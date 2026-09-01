@@ -14,7 +14,7 @@ void GameWave::Initialize()
 
 	// ウェーブデータの初期化(左から順に: ウェーブ番号, 敵の数, 制限時間(秒), 出現間隔(秒), スコア倍率)
 	_waveList.push_back({ 1, 1, 30, 1.0f });
-	_waveList.push_back({ 2, 2, 60, 1.2f });
+	_waveList.push_back({ 2, 3, 60, 1.2f });
 
 	StartNextWave();
 }
