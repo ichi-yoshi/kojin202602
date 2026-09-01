@@ -1,4 +1,5 @@
 #include "Map.h"
+#include "ResourceManager.h"
 #include "Resource.h"
 #include "MagicNumberConfig.h"
 
@@ -14,8 +15,8 @@ Map::Map()
 void Map::Initialize()
 {
 	// モデルロード
-	_handleSkySphere = MV1LoadModel(mv1::SkySphere);
-	_handleMap = MV1LoadModel(mv1::Map);
+	_handleSkySphere = ResourceManager::GetInstance().GetModel(mv1::SkySphere);
+	_handleMap = ResourceManager::GetInstance().GetModel(mv1::Map);
 	
 	_frameMapCollision = MV1SearchFrame(_handleMap, collision::MapCollision);
 

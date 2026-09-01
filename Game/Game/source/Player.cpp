@@ -4,6 +4,7 @@
 #include "ApplicationMain.h"
 #include "Resource.h"
 #include "MagicNumberConfig.h"
+#include "ResourceManager.h"
 #include <cmath>
 
 Player::Player()
@@ -22,7 +23,7 @@ Player::Player()
 
 void Player::Initialize()
 {
-	_handle = MV1LoadModel(mv1::Chara);
+	_handle = ResourceManager::GetInstance().GetModel(mv1::Chara);
 	_attachIndex = -1;
 	_totalTime = 0.0f;
 	_playTime = 0.0f;

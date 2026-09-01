@@ -27,7 +27,10 @@ public:
 	//float GetSpawnInterval() const;
 
 	float GetRemainingTime() const {return _waveTimer.GetRemainingTime();}
-	bool IsTimeUp() const { return _waveTimer.IsTimeUp(); }
+	float GetIntervalTime()const { return _intervalTimer.GetRemainingTime(); }
+	bool IsTimeUp() const { return !_waveTimer.IsRunning() && _waveTimer.GetRemainingTime() <= 0.0f; }
+	bool IsIntervalTimeUp() const { return !_intervalTimer.IsRunning() && _intervalTimer.GetRemainingTime() <= 0.0f; }
+	bool IsInterval() const { return _isInterval; }
 	bool IsGameCleared() const { return _isGameCleared; }
 
 private:
@@ -35,6 +38,10 @@ private:
 	int _currentWaveIndex;
 	bool _isGameCleared;
 
-	Timer _waveTimer; // ウェーブの制限時間を管理するタイマー
+	Timer _waveTimer;		// ウェーブの制限時間を管理するタイマー
+	Timer _intervalTimer;	// ウェーブ間のインターバル時間を管理するタイマー
+	bool _isInterval;		// インターバル中かどうかのフラグ
+
+	static constexpr float INTERVAL_TIME = 5.0f; // ウェーブ間のインターバル時間（秒）
 };
 

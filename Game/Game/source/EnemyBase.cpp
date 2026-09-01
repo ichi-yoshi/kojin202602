@@ -1,6 +1,7 @@
 #include "EnemyBase.h"
 #include "Map.h"
 #include "MagicNumberConfig.h"
+#include "ResourceManager.h"
 #include <random>
 
 static std::random_device rd;
@@ -11,7 +12,7 @@ EnemyBase::EnemyBase(const EnemyData& data)
 	_param = data;
 	_pos = data.initialPos;
 	_speed = data.speed;
-	_imageHandle = -1;
+	_imageHandle = ResourceManager::GetInstance().GetImage(_param.imagePath);;
 	_pathIndex = 0;
 	_recalcTimer = 0;
 
@@ -23,10 +24,10 @@ void EnemyBase::Initialize(const Map& map)
 {
 	if(_param.imagePath != nullptr) 
 	{
-		_imageHandle = LoadGraph(_param.imagePath);
+		//_imageHandle = LoadGraph(_param.imagePath);
 	}
 
-	SetupAStar(map);
+	//SetupAStar(map);
 	_pos = _param.initialPos;
 }
 

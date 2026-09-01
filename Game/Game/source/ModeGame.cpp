@@ -1,6 +1,7 @@
-#include "AppFrame.h"
+﻿#include "AppFrame.h"
 #include "ModeGame.h"
 #include "MagicNumberConfig.h"
+#include "ResourceManager.h"
 
 bool ModeGame::Initialize() 
 {
@@ -10,15 +11,17 @@ bool ModeGame::Initialize()
 
 	SetUseASyncLoadFlag(TRUE);
 	
-	_map.Initialize();
-	_player.Initialize();
-    _gameWave.Initialize();
-   
+    ResourceManager::GetInstance().LoadResource();
+
+	
     SpawnEnemiesForCurrentWave();
 
 	SetUseASyncLoadFlag(FALSE);
 
-	_loadState = LoadState::Loading;
+    _loadState = LoadState::Loading;
+
+ 
+
 	return true;
 }
 
@@ -34,13 +37,15 @@ bool ModeGame::Terminate()
 void ModeGame::SpawnEnemiesForCurrentWave()
 {
     _enemies.clear(); // 前のウェーブの敵を消去
-    int targetCount = _gameWave.GetTargetEnemyCount(); 
-    int currentWave = _gameWave.GetCurrentWaveNumber();
+	int targetCount = _gameWave.GetTargetEnemyCount(); // 現在のウェーブで出現する敵の数を取得
+    int currentWave = _gameWave.GetCurrentWaveNumber();// 現在のウェーブ番号を取得
 
     for(int i = 0; i < targetCount; ++i)
     {
         auto enemy = std::make_unique<EnemyInfo>(EnemyType::Enemy1);
             enemy->Initialize(_map);
+
+			enemy->SetupAStar(_map);
 
             // 1ウェーブ目は固定初期位置（重なり防止でずらす）、2ウェーブ目以降はランダム出現
             if(currentWave <= 1)
@@ -66,6 +71,9 @@ bool ModeGame::Process()
         // 全てのアセットの非同期ロードが完了したか確認
         if(GetASyncLoadNum() == 0) // 現在進行中の非同期ロード数が 0 になったら完了
         {
+            _map.Initialize();
+            _player.Initialize();
+            _gameWave.Initialize();
             _loadState = LoadState::Ready;
         }
         else
@@ -78,47 +86,50 @@ bool ModeGame::Process()
     // 1フレームの経過時間（約0.016秒）
     float deltaTime = 1.0f / 60.0f;
 
+	_player.Update(_cam, _map);
+    
+	// 敵の更新（ウェーブのインターバル中は敵の行動を停止）
+    if(!_gameWave.IsInterval())
+    {
+        for(auto& enemy : _enemies)
+        {
+            enemy->Update(_map, _player.GetPosition(), _score);
+            enemy->AttackToPlayer(_player.GetPosition(), _score);
+            enemy->EnenmyCollision(_enemies); // 敵同士の衝突判定
+        }
+    }
+    
+	// マップのコリジョン可視化設定（デバッグ用）
+	_map.SetCollisionVisible(_player.IsViewCollision());
+
     // ウェーブとタイマーの更新
     _gameWave.Update(deltaTime);
 
-	_player.Update(_cam, _map);
-
-    for(auto& enemy : _enemies)
+	// ウェーブのインターバル中の処理
+    if(_gameWave.IsInterval()) 
     {
-        enemy->Update(_map, _player.GetPosition(), _score);
-        enemy->AttackToPlayer(_player.GetPosition(), _score);
-		enemy->EnenmyCollision(_enemies); // 敵同士の衝突判定
+        OutputDebugString("★ STEP 1: TimeUpを検知\n");
+        // ウェーブの制限時間が切れた場合の処理
+        if(_gameWave.IsIntervalTimeUp())
+        {
+            // 時間切れ処理（ウェーブ進行、またはゲームオーバーなど）
+            if(_gameWave.IsGameCleared())
+            {
+                // ゲームクリア処理
+                // ここにゲームクリア時の処理を追加
+                OutputDebugString("★ STEP 2: ゲームクリア\n");
+            }
+            else
+            {
+                // 次のウェーブに進む
+                OutputDebugString("★ STEP 3: 次のウェーブ開始直前\n");
+                _gameWave.StartNextWave();
+                OutputDebugString("★ STEP 4: 敵の生成直前\n");
+                SpawnEnemiesForCurrentWave();
+                OutputDebugString("★ STEP 5: 敵の生成完了\n");
+            }
+        }
     }
-
-	_map.SetCollisionVisible(_player.IsViewCollision());
-
-	// ウェーブの制限時間が切れた場合の処理
-    if(_gameWave.IsTimeUp())
-    {
-        // 時間切れ処理（ウェーブ進行、またはゲームオーバーなど）
-		if(_gameWave.IsGameCleared())
-		{
-			// ゲームクリア処理
-			// ここにゲームクリア時の処理を追加
-		}
-		else
-		{
-			// 次のウェーブに進む
-			_gameWave.StartNextWave();
-            SpawnEnemiesForCurrentWave();
-			//// 新しい敵を生成して初期化
-			//int targetCount = _gameWave.GetTargetEnemyCount();
-			//_enemies.clear(); // 前の敵をクリア
-
-			//for(int i = 0; i < targetCount; ++i)
-			//{
-			//	auto enemy = std::make_unique<EnemyInfo>(EnemyType::Enemy1);
-			//	enemy->Initialize(_map);
-			//	_enemies.push_back(std::move(enemy));
-			//}
-		}
-    }
-
 	return true;
 }
 
@@ -130,6 +141,7 @@ bool ModeGame::Render()
     {
         // ロード中の画面描画（「Loading...」の文字を表示するなど）
         DrawString(100, 100, "NOW LOADING...", Color::White());
+        DrawFormatString(20, 20, GetColor(255, 255, 255), "AsyncLoad Left: %d", GetASyncLoadNum());
         return true;
     }
 
@@ -157,14 +169,17 @@ bool ModeGame::Render()
     bool isAnyEnemyInCenter = false;
     float targetRadius = 150.0f;
 
-    for(auto& enemy : _enemies)
+    if(!_gameWave.IsInterval())
     {
-        enemy->Render();
-
-        // 誰か一匹でも画面中央に入っているかチェック
-        if(enemy->IsInScreenCenter(targetRadius))
+        for(auto& enemy : _enemies)
         {
-            isAnyEnemyInCenter = true;
+            enemy->Render();
+
+            // 誰か一匹でも画面中央に入っているかチェック
+            if(enemy->IsInScreenCenter(targetRadius))
+            {
+                isAnyEnemyInCenter = true;
+            }
         }
     }
 
@@ -190,7 +205,15 @@ bool ModeGame::Render()
     // スコア表示
     // デバッグ用
     _score.Render();
-    DrawFormatString(10, 300, Color::White(), "WAVE : %d", _gameWave.GetCurrentWaveNumber());
-    DrawFormatString(10, 330, Color::White(), "TIME : %.1f sec", _gameWave.GetRemainingTime());
+
+    if(_gameWave.IsInterval())
+    {
+        DrawFormatString(centerX - 100, centerY - 50, Color::White(), "NEXT WAVE IN: %.1f", _gameWave.GetIntervalTime());
+    }
+    else
+    {
+        DrawFormatString(10, 300, Color::White(), "WAVE : %d", _gameWave.GetCurrentWaveNumber());
+        DrawFormatString(10, 330, Color::White(), "TIME : %.1f sec", _gameWave.GetRemainingTime());
+    }
     return true;
 }

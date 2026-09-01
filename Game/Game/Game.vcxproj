@@ -167,6 +167,7 @@
     <ClCompile Include="source\ModeGame.cpp" />
     <ClCompile Include="source\MouseInput.cpp" />
     <ClCompile Include="source\Player.cpp" />
+    <ClCompile Include="source\ResourceManager.cpp" />
     <ClCompile Include="source\Score.cpp" />
     <ClCompile Include="source\Stamina.cpp" />
     <ClCompile Include="source\Timer.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="source\MouseInput.h" />
     <ClInclude Include="source\Player.h" />
     <ClInclude Include="source\Resource.h" />
+    <ClInclude Include="source\ResourceManager.h" />
     <ClInclude Include="source\Score.h" />
     <ClInclude Include="source\Stamina.h" />
     <ClInclude Include="source\Timer.h" />
