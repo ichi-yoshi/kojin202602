@@ -12,7 +12,7 @@ EnemyBase::EnemyBase(const EnemyData& data)
 	_param = data;
 	_pos = data.initialPos;
 	_speed = data.speed;
-	_imageHandle = ResourceManager::GetInstance().GetImage(_param.imagePath);;
+	_imageHandle = ResourceManager::GetInstance().GetImage(_param.imagePath);
 	_pathIndex = 0;
 	_recalcTimer = 0;
 

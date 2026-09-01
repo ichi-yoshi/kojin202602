@@ -14,7 +14,7 @@ bool ModeGame::Initialize()
     ResourceManager::GetInstance().LoadResource();
 
 	
-    SpawnEnemiesForCurrentWave();
+    
 
 	SetUseASyncLoadFlag(FALSE);
 
@@ -74,6 +74,7 @@ bool ModeGame::Process()
             _map.Initialize();
             _player.Initialize();
             _gameWave.Initialize();
+            SpawnEnemiesForCurrentWave();
             _loadState = LoadState::Ready;
         }
         else
