@@ -111,7 +111,7 @@ void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score)
 				// プレイヤーの周囲に安全な位置を探す
 				SetRandomSpawnPos(map, playerPos);
 
-				//// 万が一探しても見つからなかった場合はプレイヤーの直近（安全保証位置）に出現
+				//// 万が一探しても見つからなかった場合はプレイヤーの直近に出現
 				//if(!spawnSuccess)
 				//{
 				//	_pos = playerPos; // 必要に応じて調整
@@ -190,6 +190,37 @@ void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score)
 	}
 }
 
+void EnemyBase::EnenmyCollision(const std::vector<std::unique_ptr<EnemyBase>>& otherEnemies)
+{
+	//スタミナ切れ中は衝突判定を無効化
+	if(_stamina.IsExhausted()) return;
+
+	for(const auto& other : otherEnemies)
+	{
+		if(other.get() == this || other->IsExhausted()) continue; // 自分自身は無視
+
+		VECTOR otherPos = other->GetPos();
+
+		float dx = _pos.x - otherPos.x;
+		float dz = _pos.z - otherPos.z;
+		float distSq = dx * dx + dz * dz;
+
+		float minDist = ENEMY_RADIUS * 2.0f; // 衝突判定の最小距離（半径の合計）
+
+		if(distSq < minDist * minDist && distSq>0.0001f) 
+		{
+			float dist = sqrtf(distSq);
+			float overlap = minDist - dist;
+
+			float pushX = (dx / dist) * (overlap / 0.5f);
+			float pushZ = (dz / dist) * (overlap / 0.5f);
+
+			_pos.x += pushX;
+			_pos.z += pushZ;
+		}
+	}
+}
+
 bool EnemyBase::IsInScreenCenter(float targetRadiusPixels)
 {
 	// スタミナ切れ中は画面中央判定を無効化
@@ -246,18 +277,15 @@ void EnemyBase::Render()
 	if(_imageHandle == -1) return;
 
 	// 敵キャラの位置に画像（ビルボード）を描画
-	if(!_stamina.IsExhausted())
+	if(_imageHandle != -1)
 	{
-		if(_imageHandle != -1)
-		{
-			VECTOR renderPos = _pos;
-			renderPos.y += GameConfig::ENEMY_HEIGHT;
+		VECTOR renderPos = _pos;
+		renderPos.y += GameConfig::ENEMY_HEIGHT;
 
-			// 3D空間上の敵の座標に、カメラを常に向く画像（ビルボード）を描画する
-			DrawBillboard3D(renderPos, 0.5f, 0.5f, 200.0f, 0.0f, _imageHandle, TRUE);
-		}
+		// 3D空間上の敵の座標に、カメラを常に向く画像（ビルボード）を描画する
+		DrawBillboard3D(renderPos, 0.5f, 0.5f, 200.0f, 0.0f, _imageHandle, TRUE);
 	}
-
+	
 	//デバッグ用
 	// A*の床グリッドやルート線画を表示
 	if(CheckHitKey(KEY_INPUT_SPACE))

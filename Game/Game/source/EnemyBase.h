@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <memory>
 #include "appframe.h"
 #include "AStarPathfinder.h"
 #include "Stamina.h"
@@ -33,6 +34,8 @@ public:
 	VECTOR GetPos() const { return _pos; }
 
 	virtual bool SetRandomSpawnPos(const Map& map, VECTOR playerPos);
+
+	void EnenmyCollision(const std::vector<std::unique_ptr<EnemyBase>>& otherEnemies);
 protected:
 	VECTOR _pos;
 	float _speed;
@@ -54,6 +57,6 @@ protected:
 
 	static constexpr int MIN_SPAWN_DIST = 400.0f;	// プレイヤーからの最小出現距離
 	static constexpr int RAND_SPAWN_DIST = 250.0f;	// プレイヤーからのランダム出現距離
-
+	static constexpr float ENEMY_RADIUS = 20.0f;		// 敵の半径（コリジョン判定用）
 };
 

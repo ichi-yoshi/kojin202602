@@ -87,6 +87,7 @@ bool ModeGame::Process()
     {
         enemy->Update(_map, _player.GetPosition(), _score);
         enemy->AttackToPlayer(_player.GetPosition(), _score);
+		enemy->EnenmyCollision(_enemies); // 敵同士の衝突判定
     }
 
 	_map.SetCollisionVisible(_player.IsViewCollision());
@@ -142,16 +143,15 @@ bool ModeGame::Render()
 
     // プレイヤーの現在地に基づいたポイントライト設定
     VECTOR playerPos = _player.GetPosition();
-    SetGlobalAmbientLight(GetColorF(0.f, 0.0f, 0.0f, 0.0f));
-    ChangeLightTypePoint(VAdd(playerPos, VGet(0, 50.f, 0)), 1000.0f, 0.0f, 0.005f, 0.0f);
+    SetGlobalAmbientLight(GetColorF(0.0f, 0.0f, 0.0f, 0.0f));
+    ChangeLightTypePoint(VAdd(playerPos, VGet(0, 50.0f, 0)), 1000.0f, 0.0f, 0.005f, 0.0f);
 
     // カメラ設定適用
     _cam.ApplyCamera();
 
     // 描画
-    _player.Render();
     _map.Render();
-
+    _player.Render();
     // UI描画処理の例（Renderなどの後半で呼び出す）
 
     bool isAnyEnemyInCenter = false;
