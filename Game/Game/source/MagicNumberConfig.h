@@ -57,7 +57,7 @@ namespace Alpha
 	constexpr int Dark = 50;	// 暗い透明度
 }
 
-// ゲーム内で使用するマジックナンバーをまとめた名前空間
+// ゲーム内で共通利用するマジックナンバーをまとめた名前空間
 namespace GameConfig 
 {
 	constexpr float FPS_CAMERA_HEIGHT = 100.0f;		// FPS視点用カメラの高さ

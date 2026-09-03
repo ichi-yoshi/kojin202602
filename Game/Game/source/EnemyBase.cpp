@@ -22,11 +22,6 @@ EnemyBase::EnemyBase(const EnemyData& data)
 
 void EnemyBase::Initialize(const Map& map) 
 {
-	if(_param.imagePath != nullptr) 
-	{
-		//_imageHandle = LoadGraph(_param.imagePath);
-	}
-
 	//SetupAStar(map);
 	_pos = _param.initialPos;
 }
@@ -283,8 +278,22 @@ void EnemyBase::Render()
 		VECTOR renderPos = _pos;
 		renderPos.y += GameConfig::ENEMY_HEIGHT;
 
+		static float blinkTimer = 0.0f;
+		blinkTimer += 1.1f;	// 点滅速度を調整
+
+		float alphaRatio=(sinf(blinkTimer) + 1.0f) * 0.5f;
+		int alpha = static_cast<int>(alphaRatio * Alpha::Max);
+
+		if(IsInScreenCenter(GameConfig::LOOK_CENTER_RADIUS))
+		{
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+		}
+		
+
 		// 3D空間上の敵の座標に、カメラを常に向く画像（ビルボード）を描画する
 		DrawBillboard3D(renderPos, 0.5f, 0.5f, 200.0f, 0.0f, _imageHandle, TRUE);
+
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 	
 	//デバッグ用

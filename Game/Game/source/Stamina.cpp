@@ -22,7 +22,7 @@ void Stamina::Consume(float amount)
 {
 	if(_isExhausted) return; // 疲労状態なら消費しない
 
-	_current -= amount * _costRate;
+	_current -= amount * _costRate;	// 消費量に倍率をかけてスタミナを減少させる
 	if(_current < 0.0f)
 	{
 		_current = 0.0f;
@@ -34,7 +34,7 @@ void Stamina::Recover()
 {
 	if(_current < _max)
 	{
-		_current += _recoveryRate;
+		_current += _recoveryRate;	// 回復量を加算
 		if(_current > _max)
 		{
 			_current = _max;

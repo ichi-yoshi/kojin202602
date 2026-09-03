@@ -9,19 +9,10 @@ bool ModeGame::Initialize()
 
     _cam.Initialize();
 
-	SetUseASyncLoadFlag(TRUE);
-	
-    ResourceManager::GetInstance().LoadResource();
+	_title.Initialize();
 
-	
+    _loadState = LoadState::Title;
     
-
-	SetUseASyncLoadFlag(FALSE);
-
-    _loadState = LoadState::Loading;
-
- 
-
 	return true;
 }
 
@@ -42,9 +33,9 @@ void ModeGame::SpawnEnemiesForCurrentWave()
 
     for(int i = 0; i < targetCount; ++i)
     {
+		// EnemyInfoのインスタンスを作成し、初期化とA*探索のセットアップを行う
         auto enemy = std::make_unique<EnemyInfo>(EnemyType::Enemy1);
             enemy->Initialize(_map);
-
 			enemy->SetupAStar(_map);
 
             // 1ウェーブ目は固定初期位置（重なり防止でずらす）、2ウェーブ目以降はランダム出現
@@ -66,6 +57,26 @@ bool ModeGame::Process()
 {
 	base::Process();
 	
+	if(_loadState == LoadState::Title)
+	{
+		_title.Update();
+
+		if(_title.IsFinished())
+		{
+            // 非同期ロードを有効にして、リソースのロードを開始
+            SetUseASyncLoadFlag(TRUE);
+
+            // ここでリソースのロードを開始する
+            ResourceManager::GetInstance().LoadResource();
+
+            // 非同期ロードが完了するまで、ゲームの初期化処理を一時停止
+            SetUseASyncLoadFlag(FALSE);
+
+            _loadState = LoadState::Loading;
+		}
+		return true;
+	}
+
     if(_loadState == LoadState::Loading)
     {
         // 全てのアセットの非同期ロードが完了したか確認
@@ -109,7 +120,6 @@ bool ModeGame::Process()
 	// ウェーブのインターバル中の処理
     if(_gameWave.IsInterval()) 
     {
-        OutputDebugString("★ STEP 1: TimeUpを検知\n");
         // ウェーブの制限時間が切れた場合の処理
         if(_gameWave.IsIntervalTimeUp())
         {
@@ -118,16 +128,12 @@ bool ModeGame::Process()
             {
                 // ゲームクリア処理
                 // ここにゲームクリア時の処理を追加
-                OutputDebugString("★ STEP 2: ゲームクリア\n");
             }
             else
             {
                 // 次のウェーブに進む
-                OutputDebugString("★ STEP 3: 次のウェーブ開始直前\n");
                 _gameWave.StartNextWave();
-                OutputDebugString("★ STEP 4: 敵の生成直前\n");
                 SpawnEnemiesForCurrentWave();
-                OutputDebugString("★ STEP 5: 敵の生成完了\n");
             }
         }
     }
@@ -137,6 +143,12 @@ bool ModeGame::Process()
 bool ModeGame::Render()
 {
     base::Render();
+
+	if(_loadState == LoadState::Title)
+	{
+		_title.Render();
+		return true;
+	}
 
     if(_loadState == LoadState::Loading)
     {

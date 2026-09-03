@@ -96,7 +96,7 @@ void Player::MoveWithCollision(const Map& map, const VECTOR& baseVelocity, float
 {
 	VECTOR oldvPos = _vPos;
 
-	// 【加減速ロジック】現在の速度ベクトル(_vVelocity)を目標(baseVelocity)に近づける
+	// 現在の速度ベクトル(_vVelocity)を目標(baseVelocity)に近づける
 	if(VSize(baseVelocity) > 0.0f)
 	{
 		// 入力がある場合：目標の方向に向けて加速

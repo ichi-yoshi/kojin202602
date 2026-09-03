@@ -6,6 +6,7 @@
 #include "Score.h"
 #include "GameWave.h"
 #include "EnemyInfo.h"
+#include "GameTitle.h"
 #include <memory>
 
 // モード
@@ -25,14 +26,16 @@ protected:
 	Score _score;
 	GameWave _gameWave;                            // ウェーブ管理
 	std::vector<std::unique_ptr<EnemyBase>> _enemies; // 複数の敵を管理する配列
+	GameTitle _title; // タイトル画面の管理
 
 	enum class LoadState 
 	{
+		Title,
 		Loading,
-		Setup,
 		Ready
 	};
-	LoadState _loadState = LoadState::Loading;
+	LoadState _loadState = LoadState::Title;
 
+	// 敵を現在のウェーブに応じて生成する関数
 	void SpawnEnemiesForCurrentWave();
 }; 
