@@ -63,14 +63,7 @@ bool ModeGame::Process()
 
 		if(_title.IsFinished())
 		{
-            // 非同期ロードを有効にして、リソースのロードを開始
-            SetUseASyncLoadFlag(TRUE);
-
-            // ここでリソースのロードを開始する
-            ResourceManager::GetInstance().LoadResource();
-
-            // 非同期ロードが完了するまで、ゲームの初期化処理を一時停止
-            SetUseASyncLoadFlag(FALSE);
+			_gameLoad.Update();
 
             _loadState = LoadState::Loading;
 		}
@@ -111,32 +104,29 @@ bool ModeGame::Process()
         }
     }
     
-	// マップのコリジョン可視化設定（デバッグ用）
-	_map.SetCollisionVisible(_player.IsViewCollision());
+    // デバッグ用
+	// マップのコリジョン可視化設定
+	//_map.SetCollisionVisible(_player.IsViewCollision());
 
     // ウェーブとタイマーの更新
     _gameWave.Update(deltaTime);
 
-	// ウェーブのインターバル中の処理
-    if(_gameWave.IsInterval()) 
+	// ゲームクリア判定
+	if(_gameWave.IsGameCleared())   // すべてのウェーブをクリアした場合
+	{
+		_loadState = LoadState::Result;
+	}
+	else if(_gameWave.IsInterval()) // ウェーブ間のインターバル中
     {
-        // ウェーブの制限時間が切れた場合の処理
+		// インターバル時間が経過したかチェック
         if(_gameWave.IsIntervalTimeUp())
         {
-            // 時間切れ処理（ウェーブ進行、またはゲームオーバーなど）
-            if(_gameWave.IsGameCleared())
-            {
-                // ゲームクリア処理
-                // ここにゲームクリア時の処理を追加
-            }
-            else
-            {
-                // 次のウェーブに進む
-                _gameWave.StartNextWave();
-                SpawnEnemiesForCurrentWave();
-            }
+            // 次のウェーブに進む
+            _gameWave.StartNextWave();
+            SpawnEnemiesForCurrentWave();
         }
     }
+	
 	return true;
 }
 
@@ -152,11 +142,18 @@ bool ModeGame::Render()
 
     if(_loadState == LoadState::Loading)
     {
-        // ロード中の画面描画（「Loading...」の文字を表示するなど）
-        DrawString(100, 100, "NOW LOADING...", Color::White());
-        DrawFormatString(20, 20, GetColor(255, 255, 255), "AsyncLoad Left: %d", GetASyncLoadNum());
+        // ロード中の画面描画
+		_gameLoad.Render();
         return true;
     }
+
+	if(_loadState == LoadState::Result)
+	{
+		// ゲームクリア画面の描画
+        _map.Render();
+		_gameResult.Render(_score);
+		return true;
+	}
 
     // 3D基本設定
     SetUseZBuffer3D(TRUE);
@@ -180,7 +177,7 @@ bool ModeGame::Render()
     // UI描画処理の例（Renderなどの後半で呼び出す）
 
     bool isAnyEnemyInCenter = false;
-    float targetRadius = 150.0f;
+    float targetRadius = GameConfig::LOOK_CENTER_RADIUS;
 
     if(!_gameWave.IsInterval())
     {
@@ -219,6 +216,8 @@ bool ModeGame::Render()
     // デバッグ用
     _score.Render();
 
+	// ウェーブ情報とタイマー表示
+    // デバッグ用
     if(_gameWave.IsInterval())
     {
         DrawFormatString(centerX - 100, centerY - 50, Color::White(), "NEXT WAVE IN: %.1f", _gameWave.GetIntervalTime());

@@ -281,9 +281,11 @@ void EnemyBase::Render()
 		static float blinkTimer = 0.0f;
 		blinkTimer += 1.1f;	// 点滅速度を調整
 
+		// 点滅のアルファ値を計算（0.0〜1.0の範囲）
 		float alphaRatio=(sinf(blinkTimer) + 1.0f) * 0.5f;
 		int alpha = static_cast<int>(alphaRatio * Alpha::Max);
 
+		// 画面中央にいる場合は半透明で描画
 		if(IsInScreenCenter(GameConfig::LOOK_CENTER_RADIUS))
 		{
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
@@ -304,7 +306,10 @@ void EnemyBase::Render()
 	}
 
 	// デバッグ用
-	DrawFormatString(0, 0, Color::White(), "Enemy Pos: (%.2f, %.2f, %.2f)", _pos.x, _pos.y, _pos.z);
-	DrawFormatString(0, 20, Color::White(), "Enemy Stamina: %.1f / %.1f (%s)",
-		_stamina.GetCurrent(), _stamina.GetMax(), _stamina.IsExhausted() ? "EXHAUSTED" : "OK");
+	// 敵の座標とスタミナを画面表示
+	{
+		DrawFormatString(0, 0, Color::White(), "Enemy Pos: (%.2f, %.2f, %.2f)", _pos.x, _pos.y, _pos.z);
+		DrawFormatString(0, 20, Color::White(), "Enemy Stamina: %.1f / %.1f (%s)",
+			_stamina.GetCurrent(), _stamina.GetMax(), _stamina.IsExhausted() ? "EXHAUSTED" : "OK");
+	}
 }

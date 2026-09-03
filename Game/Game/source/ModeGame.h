@@ -7,6 +7,8 @@
 #include "GameWave.h"
 #include "EnemyInfo.h"
 #include "GameTitle.h"
+#include "GameResult.h"
+#include "GameLoad.h"
 #include <memory>
 
 // モード
@@ -27,12 +29,15 @@ protected:
 	GameWave _gameWave;                            // ウェーブ管理
 	std::vector<std::unique_ptr<EnemyBase>> _enemies; // 複数の敵を管理する配列
 	GameTitle _title; // タイトル画面の管理
+	GameResult _gameResult; // ゲーム結果画面の管理
+	GameLoad _gameLoad; // ロード画面の管理
 
 	enum class LoadState 
 	{
 		Title,
 		Loading,
-		Ready
+		Ready,
+		Result
 	};
 	LoadState _loadState = LoadState::Title;
 

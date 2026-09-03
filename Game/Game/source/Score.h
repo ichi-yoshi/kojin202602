@@ -19,6 +19,7 @@ public:
 
 	void ResetScore();
 
+	int GetScore() const { return gameScore; }
 private:
 	int gameScore = 0; // ゲームスコアを保持する変数
 };

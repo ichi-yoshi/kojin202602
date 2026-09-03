@@ -45,6 +45,7 @@ void GameWave::Update(float deltaTime)
 {
 	if(_isGameCleared) return;
 
+	// ウェーブの制限時間またはインターバル時間を更新
 	if(_isInterval) 
 	{
 		_intervalTimer.Update(deltaTime);
