@@ -8,11 +8,8 @@ bool ModeGame::Initialize()
 	if (!base::Initialize()) { return false; }
 
     _cam.Initialize();
-
 	_title.Initialize();
-
     _loadState = LoadState::Title;
-    
 	return true;
 }
 
@@ -28,6 +25,7 @@ bool ModeGame::Terminate()
 void ModeGame::SpawnEnemiesForCurrentWave()
 {
     _enemies.clear(); // 前のウェーブの敵を消去
+
 	int targetCount = _gameWave.GetTargetEnemyCount(); // 現在のウェーブで出現する敵の数を取得
     int currentWave = _gameWave.GetCurrentWaveNumber();// 現在のウェーブ番号を取得
 
@@ -64,7 +62,7 @@ bool ModeGame::Process()
 		if(_title.IsFinished())
 		{
 			_gameLoad.Update();
-
+			
             _loadState = LoadState::Loading;
 		}
 		return true;
@@ -87,6 +85,18 @@ bool ModeGame::Process()
             return true;
         }
     }
+
+	if(_loadState == LoadState::Result)
+	{
+		_gameResult.StartNextGame();
+		if(_gameResult.IsNextGame())
+		{
+			// ゲームをリセットして再スタート
+			_loadState = LoadState::Loading;
+			_gameResult = GameResult(); // GameResultをリセット
+		}
+		return true;
+	}
 
     // 1フレームの経過時間（約0.016秒）
     float deltaTime = 1.0f / 60.0f;
@@ -126,7 +136,6 @@ bool ModeGame::Process()
             SpawnEnemiesForCurrentWave();
         }
     }
-	
 	return true;
 }
 

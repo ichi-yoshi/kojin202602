@@ -20,6 +20,7 @@ public:
 	// マップを取得する
 	VECTOR GetMinPosition() const;	// 最小座標
 	VECTOR GetMaxPosition() const;	// 最大座標
+
 private:
 	int _handleMap;			// マップモデルのハンドル
 	int _handleSkySphere;	// 空のモデルのハンドル

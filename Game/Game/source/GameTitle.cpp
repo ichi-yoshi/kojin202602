@@ -1,4 +1,5 @@
 #include "GameTitle.h"
+#include "MagicNumberConfig.h"
 
 GameTitle::GameTitle()
 {
@@ -14,7 +15,7 @@ GameTitle::~GameTitle()
 bool GameTitle::Initialize()
 {
 	// タイトル画面の画像をロード
-	//_titleGraph = LoadGraph("assets/title.png");
+	//_titleGraph =;
 	_isFinished = false;
 	return true;
 }
@@ -47,5 +48,5 @@ void GameTitle::Render()
 	}
 
 	//デバッグ用
-	DrawString(320, 400, "PRESS SPACE KEY TO START", GetColor(255, 255, 255));
+	DrawString(320, 400, "PRESS SPACE KEY TO START", Color::White());
 }

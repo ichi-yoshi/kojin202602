@@ -26,16 +26,27 @@ public:
 	virtual void Update(const Map& map, VECTOR playerPos, Score& score);
 	virtual void Render();
 
+	// A*経路探索のセットアップ
 	void SetupAStar(const Map& map);
-	bool IsInScreenCenter(float targetRadiusPixels=100.0f);
+
+	// プレイヤーの周囲に安全な位置を探して再出現させる
+	bool IsInScreenCenter(float targetRadiusPixels = 100.0f);
+
+	// プレイヤーに攻撃する処理
 	void AttackToPlayer(VECTOR playerPos, Score& score);
 
+	// スタミナが尽きているかどうかを返す
 	bool IsExhausted() const { return _stamina.IsExhausted(); }
+
+	// 敵の現在位置を返す
 	VECTOR GetPos() const { return _pos; }
 
+	// プレイヤーの周囲に安全な位置を探して再出現させる
 	virtual bool SetRandomSpawnPos(const Map& map, VECTOR playerPos);
 
+	// 敵同士の衝突判定を行い、衝突している場合は位置を調整する
 	void EnenmyCollision(const std::vector<std::unique_ptr<EnemyBase>>& otherEnemies);
+
 protected:
 	VECTOR _pos;
 	float _speed;
@@ -57,6 +68,6 @@ protected:
 
 	static constexpr int MIN_SPAWN_DIST = 400.0f;	// プレイヤーからの最小出現距離
 	static constexpr int RAND_SPAWN_DIST = 250.0f;	// プレイヤーからのランダム出現距離
-	static constexpr float ENEMY_RADIUS = 20.0f;		// 敵の半径（コリジョン判定用）
+	static constexpr float ENEMY_RADIUS = 20.0f;	// 敵の半径（コリジョン判定用）
 };
 

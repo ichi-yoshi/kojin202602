@@ -245,9 +245,10 @@ void Player::Render()
 	vRot.y = atan2(_vDir.x * -1.0f, _vDir.z * -1.0f);
 	MV1SetRotationXYZ(_handle, vRot);
 
+	// モデル描画
 	//MV1DrawModel(_handle);
 
-	//デバッグ用
+	// デバッグ用
 	// スタミナの表示
 	DrawFormatString(0, 40, Color::White(), "Player Stamina: %.1f / %.1f (%s)",
 		_stamina.GetCurrent(), _stamina.GetMax(), _stamina.IsExhausted() ? "EXHAUSTED" : "OK");

@@ -272,32 +272,78 @@ void EnemyBase::Render()
 {
 	if(_imageHandle == -1) return;
 
+	if(_stamina.IsExhausted()) return;
+
 	// 敵キャラの位置に画像（ビルボード）を描画
-	if(_imageHandle != -1)
+	VECTOR renderPos = _pos;
+	renderPos.y += GameConfig::ENEMY_HEIGHT;
+
+	static float blinkTimer = 0.0f;
+	blinkTimer += 1.1f;	// 点滅速度を調整
+
+	// 点滅のアルファ値を計算（0.0〜1.0の範囲）
+	float alphaRatio = (sinf(blinkTimer) + 1.0f) * 0.5f;
+	int alpha = static_cast<int>(alphaRatio * Alpha::Max);
+
+	// 画面中央にいる場合は半透明で描画
+	/*if(IsInScreenCenter(GameConfig::LOOK_CENTER_RADIUS))
 	{
-		VECTOR renderPos = _pos;
-		renderPos.y += GameConfig::ENEMY_HEIGHT;
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+	}*/
 
-		static float blinkTimer = 0.0f;
-		blinkTimer += 1.1f;	// 点滅速度を調整
 
-		// 点滅のアルファ値を計算（0.0〜1.0の範囲）
-		float alphaRatio=(sinf(blinkTimer) + 1.0f) * 0.5f;
-		int alpha = static_cast<int>(alphaRatio * Alpha::Max);
+	// 3D空間上の敵の座標に、カメラを常に向く画像（ビルボード）を描画する
+	DrawBillboard3D(renderPos, 0.5f, 0.5f, 200.0f, 0.0f, _imageHandle, TRUE);
 
-		// 画面中央にいる場合は半透明で描画
-		if(IsInScreenCenter(GameConfig::LOOK_CENTER_RADIUS))
-		{
-			SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
-		}
-		
-
-		// 3D空間上の敵の座標に、カメラを常に向く画像（ビルボード）を描画する
-		DrawBillboard3D(renderPos, 0.5f, 0.5f, 200.0f, 0.0f, _imageHandle, TRUE);
-
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	}
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	
+	VECTOR headPos = _pos;
+	headPos.y += GameConfig::ENEMY_HEIGHT+30.0f;
+
+	// 3D空間の頭上座標を2Dスクリーン座標に変換
+	VECTOR screenPos = ConvWorldPosToScreenPos(headPos);
+
+	// カメラの前面（画面内）に映っている場合のみ描画
+	if(screenPos.z >= 0.0f && screenPos.z <= 1.0f)
+	{
+		int barWidth = 60;   // ゲージの全幅(px)
+		int barHeight = 8;   // ゲージの高さ(px)
+
+		// ゲージの中央が頭上にくるようにX/Y座標を計算
+		int barX = static_cast<int>(screenPos.x) - (barWidth / 2);
+		int barY = static_cast<int>(screenPos.y);
+
+		// スタミナ割合を計算 (0.0 ～ 1.0)
+		float staminaRatio = _stamina.GetCurrent() / _stamina.GetMax();
+		if(staminaRatio < 0.0f) staminaRatio = 0.0f;
+		if(staminaRatio > 1.0f) staminaRatio = 1.0f;
+
+		int currentBarWidth = static_cast<int>(barWidth * staminaRatio);
+
+		// 背景（黒枠・黒ゲージ）
+		DrawBox(barX - 1, barY - 1, barX + barWidth + 1, barY + barHeight + 1, Color::Black(), TRUE);
+
+		// 残りスタミナに応じてゲージの色を変える演出（緑 -> 黄 -> 赤）
+		int gaugeColor = Color::Green();
+		if(staminaRatio < 0.3f)
+		{
+			gaugeColor = Color::Red();
+		}
+		else if(staminaRatio < 0.6f) 
+		{
+			gaugeColor = Color::Yellow(); // 黄色
+		}
+
+		// 中身（現在のスタミナゲージ）
+		if(currentBarWidth > 0)
+		{
+			DrawBox(barX, barY, barX + currentBarWidth, barY + barHeight, gaugeColor, TRUE);
+		}
+
+		// 外枠（白線）
+		DrawBox(barX, barY, barX + barWidth, barY + barHeight, Color::White(), FALSE);
+	}
+
 	//デバッグ用
 	// A*の床グリッドやルート線画を表示
 	if(CheckHitKey(KEY_INPUT_SPACE))

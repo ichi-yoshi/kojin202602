@@ -11,5 +11,6 @@ namespace EnemyType
 class EnemyInfo : public EnemyBase
 {
 public:
+	// EnemyInfoのコンストラクタはEnemyDataを受け取り、EnemyBaseのコンストラクタを呼び出す
 	EnemyInfo(const EnemyData& data) :EnemyBase(data) {}
 };

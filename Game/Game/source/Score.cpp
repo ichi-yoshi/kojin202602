@@ -21,7 +21,7 @@ void Score::Update()
 void Score::Render()
 {
 	// スコアの描画処理
-	DrawFormatString(1120, 20, Color::White(), "SCORE: %d", gameScore);
+	DrawFormatString(820, 20, Color::White(), "SCORE: %d", gameScore);
 }
 
 void Score::AddScore(int points)

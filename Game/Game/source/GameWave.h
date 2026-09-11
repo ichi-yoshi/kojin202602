@@ -19,8 +19,11 @@ public:
 
 	void Initialize();
 	void Update(float deltaTime);
+
+	// 次のウェーブを開始するメソッド
 	void StartNextWave();
 
+	// ゲッター
 	int GetCurrentWaveNumber() const;
 	float GetScoreMultiplier() const;
 	int GetTargetEnemyCount() const;
@@ -28,15 +31,23 @@ public:
 
 	float GetRemainingTime() const {return _waveTimer.GetRemainingTime();}
 	float GetIntervalTime()const { return _intervalTimer.GetRemainingTime(); }
+
+	// ウェーブの制限時間が終了したかどうかを返すメソッド
 	bool IsTimeUp() const { return !_waveTimer.IsRunning() && _waveTimer.GetRemainingTime() <= 0.0f; }
+
+	// ウェーブ間のインターバル時間が終了したかどうかを返すメソッド
 	bool IsIntervalTimeUp() const { return !_intervalTimer.IsRunning() && _intervalTimer.GetRemainingTime() <= 0.0f; }
+
+	// ウェーブ間のインターバル中かどうかを返すメソッド
 	bool IsInterval() const { return _isInterval; }
+
+	// ゲームがクリアされたかどうかを返すメソッド
 	bool IsGameCleared() const { return _isGameCleared; }
 
 private:
 	std::vector<WaveData> _waveList; // ウェーブデータのリスト
-	int _currentWaveIndex;
-	bool _isGameCleared;
+	int _currentWaveIndex;	// 現在のウェーブのインデックス
+	bool _isGameCleared;	// ゲームがクリアされたかどうかのフラグ
 
 	Timer _waveTimer;		// ウェーブの制限時間を管理するタイマー
 	Timer _intervalTimer;	// ウェーブ間のインターバル時間を管理するタイマー

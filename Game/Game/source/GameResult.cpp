@@ -2,6 +2,14 @@
 #include "MagicNumberConfig.h"
 #include <string>
 
+void GameResult::StartNextGame()
+{
+	if(CheckHitKey(KEY_INPUT_SPACE)) 
+	{
+		_isNextGame = true;
+	}
+}
+
 void GameResult::DrawResultCenterBox(int resultX, int resultY, int resultWidth, int resultHeight) 
 {
     // リザルト背景（黒）
@@ -28,6 +36,8 @@ void GameResult::DrawResultContent(int resultX, int resultY, int resultWidth, in
 	int scoreWidth = GetDrawStringWidth(std::to_string(finalScore).c_str(), std::to_string(finalScore).length());
 	int scoreX = resultX + (resultWidth - scoreWidth) / 2;
 	DrawString(scoreX, resultY + 60, std::to_string(finalScore).c_str(), resultText);
+
+    SetFontSize(Font::Normal);
 }
 
 void GameResult::Render(const Score& score)
@@ -43,4 +53,7 @@ void GameResult::Render(const Score& score)
 
     DrawResultCenterBox(boxX, boxY, boxWidth, boxHeight);
     DrawResultContent(boxX, boxY, boxWidth, boxHeight, score); 
+
+    //デバッグ用
+    DrawString(320, 400, "PRESS SPACE KEY TO NEXTGAME", Color::White());
 }

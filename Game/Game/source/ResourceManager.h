@@ -15,6 +15,7 @@ public:
 	ResourceManager() = default;
 	~ResourceManager() = default;
 
+	// リソースのロードを行う関数
 	void LoadResource();
 
 	int GetImage(const std::string& key) const;
