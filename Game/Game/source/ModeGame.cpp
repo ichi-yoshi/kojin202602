@@ -221,6 +221,9 @@ bool ModeGame::Render()
         DrawPixel(centerX, centerY, Color::White());
     }
 
+	// ウェーブ情報とタイマーの描画
+    _gameWave.Render();
+
     // スコア表示
     // デバッグ用
     _score.Render();

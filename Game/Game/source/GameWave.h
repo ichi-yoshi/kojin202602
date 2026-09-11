@@ -44,6 +44,7 @@ public:
 	// ゲームがクリアされたかどうかを返すメソッド
 	bool IsGameCleared() const { return _isGameCleared; }
 
+	void Render() const;
 private:
 	std::vector<WaveData> _waveList; // ウェーブデータのリスト
 	int _currentWaveIndex;	// 現在のウェーブのインデックス

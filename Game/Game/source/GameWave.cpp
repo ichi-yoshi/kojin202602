@@ -1,4 +1,6 @@
 #include "GameWave.h"
+#include "Gauge.h"
+#include "MagicNumberConfig.h"
 
 GameWave::GameWave() 
 {
@@ -90,3 +92,44 @@ int GameWave::GetTargetEnemyCount() const
 //	if(_currentWaveIndex < 0 || _currentWaveIndex >= static_cast<int>(_waveList.size())) return 0.0f;
 //	return _waveList[_currentWaveIndex].spawnInterval;
 //}
+
+void GameWave::Render() const 
+{
+	if(_isGameCleared || _currentWaveIndex < 0 ) return;
+	
+	int screenWidth = 0, screenHeight = 0;
+	GetScreenState(&screenWidth, &screenHeight, NULL);
+
+	int posX = screenWidth / 2;
+	int posY = 30;
+	int gaugeWidth = 400;
+	int gaugeHeight = 20;
+
+	float remainingRate = 0.0f;
+	int fillColor = Color::Green();
+	const char* waveText = "";
+
+	if(_isInterval) 
+	{
+		remainingRate = 1.0f - _intervalTimer.GetProgress();
+		fillColor = Color::Yellow();
+	}
+	else 
+	{
+		remainingRate = 1.0f - _waveTimer.GetProgress();
+		if(remainingRate < 0.2f) 
+		{
+			fillColor = Color::Red();
+		}
+		else 
+		{
+			fillColor = Color::Green();
+		}
+	}
+
+	Gauge timeGauge;
+	timeGauge.SetSize(gaugeWidth, gaugeHeight);
+	timeGauge.SetPosition(posX, posY, true);
+	timeGauge.SetColor(fillColor, Color::White(), Color::Dim());
+	timeGauge.Render(remainingRate);
+}
