@@ -2,6 +2,7 @@
 #include "Map.h"
 #include "MagicNumberConfig.h"
 #include "ResourceManager.h"
+#include "Gauge.h"
 #include <random>
 
 static std::random_device rd;
@@ -306,42 +307,21 @@ void EnemyBase::Render()
 	// カメラの前面（画面内）に映っている場合のみ描画
 	if(screenPos.z >= 0.0f && screenPos.z <= 1.0f)
 	{
-		int barWidth = 60;   // ゲージの全幅(px)
-		int barHeight = 8;   // ゲージの高さ(px)
-
-		// ゲージの中央が頭上にくるようにX/Y座標を計算
-		int barX = static_cast<int>(screenPos.x) - (barWidth / 2);
-		int barY = static_cast<int>(screenPos.y);
-
 		// スタミナ割合を計算 (0.0 ～ 1.0)
 		float staminaRatio = _stamina.GetCurrent() / _stamina.GetMax();
-		if(staminaRatio < 0.0f) staminaRatio = 0.0f;
-		if(staminaRatio > 1.0f) staminaRatio = 1.0f;
 
-		int currentBarWidth = static_cast<int>(barWidth * staminaRatio);
-
-		// 背景（黒枠・黒ゲージ）
-		DrawBox(barX - 1, barY - 1, barX + barWidth + 1, barY + barHeight + 1, Color::Black(), TRUE);
-
-		// 残りスタミナに応じてゲージの色を変える演出（緑 -> 黄 -> 赤）
+		// スタミナゲージの描画位置とサイズ
 		int gaugeColor = Color::Green();
-		if(staminaRatio < 0.3f)
-		{
-			gaugeColor = Color::Red();
-		}
-		else if(staminaRatio < 0.6f) 
-		{
-			gaugeColor = Color::Yellow(); // 黄色
-		}
+		if(staminaRatio < 0.3f) gaugeColor = Color::Red();
+		else if(staminaRatio < 0.6f) gaugeColor = Color::Yellow();
+		
+		// スタミナゲージの描画
+		Gauge staminaGauge;
+		staminaGauge.SetSize(60, 8);
+		staminaGauge.SetPosition(static_cast<int>(screenPos.x-60/2), static_cast<int>(screenPos.y));
+		staminaGauge.SetColor(gaugeColor, Color::White(), Color::Dim());
+		staminaGauge.Render(staminaRatio);
 
-		// 中身（現在のスタミナゲージ）
-		if(currentBarWidth > 0)
-		{
-			DrawBox(barX, barY, barX + currentBarWidth, barY + barHeight, gaugeColor, TRUE);
-		}
-
-		// 外枠（白線）
-		DrawBox(barX, barY, barX + barWidth, barY + barHeight, Color::White(), FALSE);
 	}
 
 	//デバッグ用

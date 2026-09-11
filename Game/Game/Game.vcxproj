@@ -166,6 +166,7 @@
     <ClCompile Include="source\GameResult.cpp" />
     <ClCompile Include="source\GameTitle.cpp" />
     <ClCompile Include="source\GameWave.cpp" />
+    <ClCompile Include="source\Gauge.cpp" />
     <ClCompile Include="source\Map.cpp" />
     <ClCompile Include="source\ModeGame.cpp" />
     <ClCompile Include="source\MouseInput.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="source\GameResult.h" />
     <ClInclude Include="source\GameTitle.h" />
     <ClInclude Include="source\GameWave.h" />
+    <ClInclude Include="source\Gauge.h" />
     <ClInclude Include="source\MagicNumberConfig.h" />
     <ClInclude Include="source\Map.h" />
     <ClInclude Include="source\ModeGame.h" />

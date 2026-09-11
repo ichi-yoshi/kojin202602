@@ -2,6 +2,7 @@
 #include "MagicNumberConfig.h"
 #include "ResourceManager.h"
 #include "Resource.h"
+#include "Gauge.h"
 
 void GameLoad::Update()
 {
@@ -26,10 +27,10 @@ void GameLoad::Render()
 	// ロードの進捗に応じて緑色のバーを描画
 	double progress = static_cast<double>(maxLoadNum - loadNum) / static_cast<double>(maxLoadNum);
 
-	// 進捗率を0.0から1.0の範囲に制限
-	if(progress < 0.0) progress = 0.0;
-	if(progress > 1.0) progress = 1.0;
-	int barWidth = static_cast<int>(800.0 * progress);
-
-	DrawBox(200, 580, 200 + barWidth, 620, Color::Green(), TRUE);
+	// ゲージの描画
+	Gauge loadGauge;
+	loadGauge.SetSize(800, 40);
+	loadGauge.SetPosition(200, 580);
+	loadGauge.SetColor(Color::Green(), Color::White(), Color::Dim());
+	loadGauge.Render(progress);
 }
