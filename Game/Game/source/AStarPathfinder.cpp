@@ -167,6 +167,7 @@ float AStarPathfinder::CalculateDistance(const Node& a, const Node& b) const
 // A*アルゴリズムによる経路探索
 std::vector<VECTOR> AStarPathfinder::FindPath(VECTOR starWorld, VECTOR goalWorld) 
 {
+	// 経路を格納するベクターを初期化
 	std::vector<VECTOR> path;
 	_lastCalculatePath.clear();
 
@@ -174,12 +175,24 @@ std::vector<VECTOR> AStarPathfinder::FindPath(VECTOR starWorld, VECTOR goalWorld
 	Node* startNode = GetNodeAtWorld(starWorld);
 	Node* goalNode = GetNodeAtWorld(goalWorld);
 
-	// スタートノードまたはゴールノードが無効な場合は経路探索を中止
-	if(!startNode||!goalNode||!startNode->isWalkable||!goalNode->isWalkable||!startNode->isValid||!goalNode->isValid)
+	// スタートノードが無効または通行不可の場合は経路探索を中止
+	if(!startNode || !startNode->isValid || !startNode->isWalkable) 
 	{
 		return path;
 	}
 
+	// ゴールノードが無効または通行不可の場合は、最寄りの通行可能なノードを探す
+	if(!goalNode || !goalNode->isValid || !goalNode->isWalkable)
+	{
+		goalNode = FindNearestWalkableNode(goalNode);
+	}
+
+	// ゴールノードが見つからない場合は経路探索を中止
+	if(!goalNode) 
+	{
+		return path;
+	}
+	
 	// A*アルゴリズムの初期化
 	for(auto& node : _grid) 
 	{
@@ -267,6 +280,47 @@ std::vector<VECTOR> AStarPathfinder::FindPath(VECTOR starWorld, VECTOR goalWorld
 		}
 	}
 	return path;
+}
+
+Node* AStarPathfinder::FindNearestWalkableNode(Node* targetNode)
+{
+	if(!targetNode) return nullptr;
+	if(targetNode->isValid && targetNode->isWalkable)return targetNode;
+
+	std::queue<Node*> serchQueue;
+	std::unordered_set<int> visited;
+
+	serchQueue.push(targetNode);
+	visited.insert(GetIndex(targetNode->x, targetNode->z));
+	
+	int dx[] = { 0,0,-1,1,-1,1,-1,1 };
+	int dz[] = { -1,1,0,0,-1,-1,1,1 };
+
+	while(!serchQueue.empty())
+	{
+		Node* currentNode = serchQueue.front();
+		serchQueue.pop();
+
+		if(currentNode->isValid && currentNode->isWalkable)
+		{
+			return currentNode;
+		}
+
+		for(int i = 0; i < 8; ++i)
+		{
+			int nx = currentNode->x + dx[i];
+			int nz = currentNode->z + dz[i];
+			int nIdx = GetIndex(nx, nz);
+
+			if(nIdx != -1 && visited.find(nIdx) == visited.end())
+			{
+				visited.insert(nIdx);
+				serchQueue.push(&_grid[nIdx]);
+			}
+		}
+	}
+
+	return nullptr;
 }
 
 void AStarPathfinder::DebugRender()

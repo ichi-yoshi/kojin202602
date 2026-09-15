@@ -3,6 +3,7 @@
 #include <vector>
 #include <queue>
 #include <cmath>
+#include <unordered_set>
 
 class Map;
 
@@ -48,6 +49,7 @@ private:
 	//ワールド座標からグリッド上のノードを取得する
 	Node* GetNodeAtWorld(VECTOR worldPos);
 
+	Node* FindNearestWalkableNode(Node* targetNode);
 private:
 	int _width;		//グリッドの幅（X方向のマス数）
 	int _length;	//グリッドの長さ（Z方向のマス数）
