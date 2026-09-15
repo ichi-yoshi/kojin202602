@@ -9,14 +9,14 @@ class Map;
 
 struct Node
 {
-	int x = 0, z = 0;					//グリッド上のインデックス
-	VECTOR worldPos = VGet(0, 0, 0);	//実際の3D空間上の位置(Y座標は床の高さ)
-	bool isWalkable = false;			//歩行可能かどうか
-	bool isValid = false;				//グリッドとして有効かどうか（床がないマスは無効）
-	float moveCost = 0.0f;				//追加コスト（崖際などの危険なマスにペナルティを付与する場合に使用）
+	int x, z;			//グリッド上のインデックス
+	VECTOR worldPos;	//実際の3D空間上の位置(Y座標は床の高さ)
+	bool isWalkable;	//歩行可能かどうか
+	bool isValid;		//グリッドとして有効かどうか（床がないマスは無効）
+	float moveCost;		//追加コスト（崖際などの危険なマスにペナルティを付与する場合に使用）
 
-	float gScore = 999999.0f;	//スタートからの実コスト
-	float hScore = 0.0f;		//ゴールまでの推定コスト
+	float gScore;		//スタートからの実コスト
+	float hScore;		//ゴールまでの推定コスト
 	float fScore() const { return gScore + hScore; }	//総コスト（f = g + h）
 
 	Node* parent=nullptr;		//経路復元用の親ノードへのポインタ
@@ -58,5 +58,8 @@ private:
 
 	std::vector<Node> _grid;	//グリッドのノード配列
 	std::vector<VECTOR> _lastCalculatePath;	//デバッグ表示用
+
+	static constexpr float MAX_COST = 999999.0f;	//初期化時の最大コスト
+	static constexpr float EDGE_PENALTY = 50.0f;	//崖際などのマスに追加するペナルティコスト
 };
 

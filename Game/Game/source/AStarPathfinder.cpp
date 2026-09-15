@@ -101,8 +101,6 @@ void AStarPathfinder::BuildGridFromMap(const Map& map, VECTOR origin, float spac
 	}
 
 	// パス3：崖際（床がないマスと隣接している歩けるマス）のコストを上げる
-	const float EDGE_PENALTY = 50.0f; // ★ペナルティの大きさ（距離50.0f分遠回りするのと同じ重み）
-
 	for(int z = 0; z < _length; ++z)
 	{
 		for(int x = 0; x < _width; ++x)
@@ -196,7 +194,7 @@ std::vector<VECTOR> AStarPathfinder::FindPath(VECTOR starWorld, VECTOR goalWorld
 	// A*アルゴリズムの初期化
 	for(auto& node : _grid) 
 	{
-		node.gScore = 999999.0f;
+		node.gScore = MAX_COST;
 		node.hScore = 0.0f;
 		node.parent = nullptr;
 	}
@@ -243,6 +241,7 @@ std::vector<VECTOR> AStarPathfinder::FindPath(VECTOR starWorld, VECTOR goalWorld
 		int dx[] = { 0,0,-1,1,-1,1,-1,1 };
 		int dz[] = { -1,1,0,0,-1,-1,1,1 };
 
+		// 隣接ノードを8方向（上下左右と斜め）で探索
 		for(int i = 0; i < 8; ++i)
 		{
 			int nx = currentNode->x + dx[i];
@@ -268,10 +267,12 @@ std::vector<VECTOR> AStarPathfinder::FindPath(VECTOR starWorld, VECTOR goalWorld
 			// オープンリストにない場合、または新しいgScoreが小さい場合は更新
 			if(openIt == openList.end() || tentativeGScore < neighbor->gScore)
 			{
+				// 親ノードを更新し、gScoreとhScoreを計算
 				neighbor->parent = currentNode;
 				neighbor->gScore = tentativeGScore;
 				neighbor->hScore = CalculateDistance(*neighbor, *goalNode);
 
+				// オープンリストにない場合は追加
 				if(openIt == openList.end())
 				{
 					openList.push_back(neighbor);
@@ -282,20 +283,25 @@ std::vector<VECTOR> AStarPathfinder::FindPath(VECTOR starWorld, VECTOR goalWorld
 	return path;
 }
 
+// ゴールノードが通行不可の場合、最寄りの通行可能なノードを探索する
 Node* AStarPathfinder::FindNearestWalkableNode(Node* targetNode)
 {
+	// ゴールノードが無効または通行不可の場合、最寄りの通行可能なノードを探索する
 	if(!targetNode) return nullptr;
 	if(targetNode->isValid && targetNode->isWalkable)return targetNode;
 
+	// 幅優先探索（BFS）で最寄りの通行可能なノードを探す
 	std::queue<Node*> serchQueue;
 	std::unordered_set<int> visited;
 
+	// 最初のノードをキューに追加し、訪問済みとしてマーク
 	serchQueue.push(targetNode);
 	visited.insert(GetIndex(targetNode->x, targetNode->z));
 	
 	int dx[] = { 0,0,-1,1,-1,1,-1,1 };
 	int dz[] = { -1,1,0,0,-1,-1,1,1 };
 
+	// BFSループ
 	while(!serchQueue.empty())
 	{
 		Node* currentNode = serchQueue.front();
@@ -306,6 +312,7 @@ Node* AStarPathfinder::FindNearestWalkableNode(Node* targetNode)
 			return currentNode;
 		}
 
+		// 隣接ノードを8方向（上下左右と斜め）で探索
 		for(int i = 0; i < 8; ++i)
 		{
 			int nx = currentNode->x + dx[i];

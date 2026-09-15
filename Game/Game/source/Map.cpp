@@ -69,6 +69,7 @@ bool Map::CheckCollision(const VECTOR& startPos, float colSubY, VECTOR& outHitPo
 	// ラインとコリジョンの交差判定
 	MV1_COLL_RESULT_POLY hitPoly = MV1CollCheck_Line(_handleMap, _frameMapCollision, lineStart, lineEnd);
 
+	// ヒットした場合は衝突位置を返す
 	if(hitPoly.HitFlag)
 	{
 		outHitPos = hitPoly.HitPosition;

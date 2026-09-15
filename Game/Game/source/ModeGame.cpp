@@ -183,8 +183,8 @@ bool ModeGame::Render()
     // 描画
     _map.Render();
     _player.Render();
-    // UI描画処理の例（Renderなどの後半で呼び出す）
 
+	// 敵の描画と、画面中央に敵がいるかどうかの判定
     bool isAnyEnemyInCenter = false;
     float targetRadius = GameConfig::LOOK_CENTER_RADIUS;
 

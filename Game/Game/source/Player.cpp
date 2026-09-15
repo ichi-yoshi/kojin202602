@@ -91,8 +91,10 @@ VECTOR Player::CalculateMovementVector(CameraBase& camera, int key)
 	// 後ろ歩き（Sキー）を押している場合はダッシュしない
 	float currentMaxSpeed = (!isSPressed && isShiftPressed && !_stamina.IsExhausted()) ? DASH_SPEED : MAX_SPEED;
 
+	// マウス入力を更新して移動ベクトルを計算
 	_mouseInput.Update(key, camrad, currentMaxSpeed);
 
+	// 計算された移動ベクトルを返す
 	return _mouseInput.GetMovementVector();
 }
 
@@ -263,8 +265,8 @@ void Player::Render()
 
 	// デバッグ用
 	// コリジョンラインの描画
-	if(_bViewCollision)
+	/*if(_bViewCollision)
 	{
 		DrawLine3D(VAdd(_vPos, VGet(0.0f, _colSubY, 0.0f)), VAdd(_vPos, VGet(0.0f, -99999.0f, 0.0f)), Color::Red());
-	}
+	}*/
 }
