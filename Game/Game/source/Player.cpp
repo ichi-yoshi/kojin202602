@@ -83,9 +83,13 @@ VECTOR Player::CalculateMovementVector(CameraBase& camera, int key)
 	VECTOR camTarget = camera.GetTarget();
 	float camrad = atan2(camPos.z - camTarget.z, camPos.x - camTarget.x);
 
-	// Shiftキー押下 かつ スタミナ切れでない場合はダッシュ最高速度をセット
+	// ShiftキーとSキーの押下状態を取得
 	bool isShiftPressed = (CheckHitKey(KEY_INPUT_LSHIFT) == 1);
-	float currentMaxSpeed = (isShiftPressed && !_stamina.IsExhausted()) ? DASH_SPEED : MAX_SPEED;
+	bool isSPressed = (CheckHitKey(KEY_INPUT_S) == 1);
+
+	// スタミナが尽きていない場合、Shiftキーを押しているとダッシュ速度になる
+	// 後ろ歩き（Sキー）を押している場合はダッシュしない
+	float currentMaxSpeed = (!isSPressed && isShiftPressed && !_stamina.IsExhausted()) ? DASH_SPEED : MAX_SPEED;
 
 	_mouseInput.Update(key, camrad, currentMaxSpeed);
 
@@ -131,7 +135,10 @@ void Player::MoveWithCollision(const Map& map, const VECTOR& baseVelocity, float
 
 	float moveDistance = VSize(_vVelocity);
 	bool isShiftPressed = (CheckHitKey(KEY_INPUT_LSHIFT) == 1);
-	if(moveDistance > 0.1f && isShiftPressed && !_stamina.IsExhausted())
+	bool isSPressed = (CheckHitKey(KEY_INPUT_S) == 1);
+
+	// スタミナの消費と回復
+	if(moveDistance > 0.1f && !isSPressed && isShiftPressed && !_stamina.IsExhausted())
 	{
 		_stamina.Consume(moveDistance * STAMINA_COST_RATE); // キーを押している間はスタミナを消費
 	}
@@ -205,6 +212,7 @@ void Player::UpdateAnimation(STATUS oldStatus)
 			_attachIndex = -1;
 		}
 
+		// 状態が変化した場合は新しいアニメーションをアタッチする
 		switch(_status)
 		{
 		case STATUS::WAIT:
