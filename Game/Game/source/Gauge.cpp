@@ -41,12 +41,14 @@ void Gauge::SetHasBorder(bool hasBorder)
 
 void Gauge::Render(float rate) const 
 {
+	// rateを0.0〜1.0の範囲に制限
 	float clampRate = std::clamp(rate, 0.0f, 1.0f);
 
 	int drawX = _isCenterMode ? (_x - _width / 2) : _x;
 
 	DrawBox(drawX, _y, drawX + _width, _y + _height, _bgColor, TRUE);
 
+	// ゲージの幅を計算して描画
 	int currentWidth = static_cast<int>(_width * clampRate);
 	if(currentWidth > 0)
 	{

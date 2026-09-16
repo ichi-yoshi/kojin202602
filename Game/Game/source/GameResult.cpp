@@ -55,5 +55,5 @@ void GameResult::Render(const Score& score)
     DrawResultContent(boxX, boxY, boxWidth, boxHeight, score); 
 
     //デバッグ用
-    DrawString(320, 400, "PRESS SPACE KEY TO NEXTGAME", Color::White());
+    DrawString(420, 400, "PRESS SPACE KEY TO NEXTGAME", Color::White());
 }

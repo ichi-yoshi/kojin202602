@@ -49,6 +49,7 @@ private:
 	//ワールド座標からグリッド上のノードを取得する
 	Node* GetNodeAtWorld(VECTOR worldPos);
 
+	//ゴールノードが通行不可の場合、最寄りの通行可能なノードを探索する
 	Node* FindNearestWalkableNode(Node* targetNode);
 private:
 	int _width;		//グリッドの幅（X方向のマス数）

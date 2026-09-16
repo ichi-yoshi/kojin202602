@@ -64,7 +64,7 @@ bool EnemyBase::SetRandomSpawnPos(const Map& map, VECTOR playerPos)
 
 		// 地面との当たり判定
 		VECTOR hitPos;
-		if(map.CheckCollision(candidatePos, 100.0f, hitPos))
+		if(map.CheckCollision(candidatePos, GameConfig::FPS_CAMERA_HEIGHT, hitPos))
 		{
 			candidatePos.y = hitPos.y;
 		}
@@ -86,7 +86,9 @@ void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score)
 	{
 		VECTOR enemyPos = VAdd(_pos, VGet(0.0f, GameConfig::ENEMY_HEIGHT, 0.0f));
 		VECTOR hitPos;
-		if(map.CheckCollision(enemyPos, 40.0f, hitPos))
+
+		// プレイヤーの腰の高さでコリジョン判定を行い、画面中央に敵がいる場合はスタミナを消費してスコアを加算
+		if(map.CheckCollision(enemyPos, GameConfig::COL_OFFSET_Y, hitPos))
 		{
 			_stamina.Consume(_speed);	// 画面中央にいる場合はスタミナを消費
 			score.AddScore(1);			// スコアを加算
@@ -144,7 +146,7 @@ void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score)
 
 		// 足元の床高さに吸着
 		VECTOR hitPos;
-		if(map.CheckCollision(_pos, 40.0f, hitPos)) { _pos.y = hitPos.y; }
+		if(map.CheckCollision(_pos, GameConfig::COL_OFFSET_Y, hitPos)) { _pos.y = hitPos.y; }
 		return; // 近距離処理が終わったらここでUpdateを抜ける
 	}
 
@@ -166,8 +168,8 @@ void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score)
 		VECTOR toTarget = VSub(targetPos, _pos);
 		float dist = VSize(toTarget);
 
-		// 到達判定を少し広め（8.0f〜12.0f程度）にしておくことで往復を防ぐ
-		if(dist < 10.0f)
+		// 到達判定を少し広めにしておくことで往復を防ぐ
+		if(dist < REACH_DISTANCE)
 		{
 			_pathIndex++;
 		}
@@ -181,7 +183,7 @@ void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score)
 
 	// 足元の床高さに吸着
 	VECTOR hitPos;
-	if(map.CheckCollision(_pos, 40.0f, hitPos))
+	if(map.CheckCollision(_pos, GameConfig::COL_OFFSET_Y, hitPos))
 	{
 		_pos.y = hitPos.y;
 	}
@@ -204,14 +206,17 @@ void EnemyBase::EnenmyCollision(const std::vector<std::unique_ptr<EnemyBase>>& o
 
 		float minDist = ENEMY_RADIUS * 2.0f; // 衝突判定の最小距離（半径の合計）
 
-		if(distSq < minDist * minDist && distSq>0.0001f) 
+		if(distSq < minDist * minDist && distSq > 0.0001f) 
 		{
+			// 衝突している場合、互いに押し合うように位置を調整する
 			float dist = sqrtf(distSq);
 			float overlap = minDist - dist;
 
+			// 衝突方向に沿って押し出す量を計算
 			float pushX = (dx / dist) * (overlap / 0.5f);
 			float pushZ = (dz / dist) * (overlap / 0.5f);
 
+			// 自分の位置を押し出す
 			_pos.x += pushX;
 			_pos.z += pushZ;
 		}
@@ -229,6 +234,7 @@ bool EnemyBase::IsInScreenCenter(float targetRadiusPixels)
 	// ワールド座標をスクリーン座標に変換
 	VECTOR screenPos = ConvWorldPosToScreenPos(checkPos);
 
+	// Z値が0.0〜1.0の範囲外の場合は画面外と判定
 	if(screenPos.z < 0.0f || screenPos.z > 1.0f)
 	{
 		return false;
@@ -261,7 +267,8 @@ void EnemyBase::AttackToPlayer(VECTOR playerPos, Score& score)
 	// 攻撃判定はスタミナが尽きていない場合のみ有効
 	if(!_stamina.IsExhausted())
 	{
-		if(distToPlayer <= 10.0f)
+		// プレイヤーとの距離が一定範囲内であれば攻撃成功とする
+		if(distToPlayer <= REACH_DISTANCE)
 		{
 			_stamina.Consume(9999);		// スタミナを強制的に消費して消滅させる
 			score.SubtractScore(100);	// プレイヤーのスコアを減らす
@@ -279,12 +286,12 @@ void EnemyBase::Render()
 	VECTOR renderPos = _pos;
 	renderPos.y += GameConfig::ENEMY_HEIGHT;
 
-	static float blinkTimer = 0.0f;
-	blinkTimer += 1.1f;	// 点滅速度を調整
+	//static float blinkTimer = 0.0f;
+	//blinkTimer += 1.1f;	// 点滅速度を調整
 
-	// 点滅のアルファ値を計算（0.0〜1.0の範囲）
-	float alphaRatio = (sinf(blinkTimer) + 1.0f) * 0.5f;
-	int alpha = static_cast<int>(alphaRatio * Alpha::Max);
+	//// 点滅のアルファ値を計算（0.0〜1.0の範囲）
+	//float alphaRatio = (sinf(blinkTimer) + 1.0f) * 0.5f;
+	//int alpha = static_cast<int>(alphaRatio * Alpha::Max);
 
 	// 画面中央にいる場合は半透明で描画
 	/*if(IsInScreenCenter(GameConfig::LOOK_CENTER_RADIUS))
@@ -299,7 +306,7 @@ void EnemyBase::Render()
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	
 	VECTOR headPos = _pos;
-	headPos.y += GameConfig::ENEMY_HEIGHT+30.0f;
+	headPos.y += GameConfig::ENEMY_HEIGHT + 30.0f;
 
 	// 3D空間の頭上座標を2Dスクリーン座標に変換
 	VECTOR screenPos = ConvWorldPosToScreenPos(headPos);
@@ -318,7 +325,7 @@ void EnemyBase::Render()
 		// スタミナゲージの描画
 		Gauge staminaGauge;
 		staminaGauge.SetSize(60, 8);
-		staminaGauge.SetPosition(static_cast<int>(screenPos.x-60/2), static_cast<int>(screenPos.y));
+		staminaGauge.SetPosition(static_cast<int>(screenPos.x - 60 / 2), static_cast<int>(screenPos.y));
 		staminaGauge.SetColor(gaugeColor, Color::White(), Color::Dim());
 		staminaGauge.Render(staminaRatio);
 

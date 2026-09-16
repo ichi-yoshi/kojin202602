@@ -13,7 +13,10 @@ public:
 	// リザルトの内容を描画する関数
 	void DrawResultContent(int resultX, int resultY, int resultWidth, int resultHeight, const Score& score);
 
+	// 次のゲームを開始するためのフラグを設定する関数
 	void StartNextGame();
+
+	// 次のゲームを開始するかどうかを取得する関数
 	bool IsNextGame() { return _isNextGame; };
 
 private:

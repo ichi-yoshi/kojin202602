@@ -112,7 +112,8 @@ void Player::MoveWithCollision(const Map& map, const VECTOR& baseVelocity, float
 
 		if(diffLen <= ACCEL)
 		{
-			_vVelocity = baseVelocity; // 差がわずかなら目標値にする
+			// 差がわずかなら目標値にする
+			_vVelocity = baseVelocity; 
 		}
 		else
 		{
@@ -126,7 +127,8 @@ void Player::MoveWithCollision(const Map& map, const VECTOR& baseVelocity, float
 		float currentSpeed = VSize(_vVelocity);
 		if(currentSpeed <= DECEL)
 		{
-			_vVelocity = VGet(0, 0, 0); // ほぼ止まっていれば完全に停止
+			// ほぼ止まっていれば完全に停止
+			_vVelocity = VGet(0, 0, 0); 
 		}
 		else
 		{
@@ -135,18 +137,23 @@ void Player::MoveWithCollision(const Map& map, const VECTOR& baseVelocity, float
 		}
 	}
 
+	// 移動距離を計算
 	float moveDistance = VSize(_vVelocity);
+
+	// ShiftキーとSキーの押下状態を取得
 	bool isShiftPressed = (CheckHitKey(KEY_INPUT_LSHIFT) == 1);
 	bool isSPressed = (CheckHitKey(KEY_INPUT_S) == 1);
 
 	// スタミナの消費と回復
 	if(moveDistance > 0.1f && !isSPressed && isShiftPressed && !_stamina.IsExhausted())
 	{
-		_stamina.Consume(moveDistance * STAMINA_COST_RATE); // キーを押している間はスタミナを消費
+		// キーを押している間はスタミナを消費
+		_stamina.Consume(moveDistance * STAMINA_COST_RATE); 
 	}
 	else
 	{
-		_stamina.Recover(); // キーを離している間はスタミナを回復
+		// キーを離している間はスタミナを回復
+		_stamina.Recover(); 
 	}
 
 	// コリジョン回避用の計算には、この「加減速計算後の現在の速度」を使う
