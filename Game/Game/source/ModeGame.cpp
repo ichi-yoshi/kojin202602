@@ -108,8 +108,8 @@ bool ModeGame::Process()
     {
         for(auto& enemy : _enemies)
         {
-            enemy->Update(_map, _player.GetPosition(), _score);
-            enemy->AttackToPlayer(_player.GetPosition(), _score);
+            enemy->Update(_map, _player.GetPosition(), _score, _gameWave);
+            enemy->AttackToPlayer(_player.GetPosition(), _score, _gameWave);
             enemy->EnenmyCollision(_enemies); // 敵同士の衝突判定
 
 			if(enemy->IsAttacking())

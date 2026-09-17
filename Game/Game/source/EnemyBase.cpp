@@ -81,7 +81,7 @@ bool EnemyBase::SetRandomSpawnPos(const Map& map, VECTOR playerPos)
 	return false; // 安全な位置が見つからなかった場合はfalseを返す
 }
 
-void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score) 
+void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score, GameWave& gameWave) 
 {
 	if(IsInScreenCenter(GameConfig::LOOK_CENTER_RADIUS))
 	{
@@ -92,7 +92,7 @@ void EnemyBase::Update(const Map& map, VECTOR playerPos, Score& score)
 		if(map.CheckCollision(enemyPos, GameConfig::COL_OFFSET_Y, hitPos))
 		{
 			_stamina.Consume(_speed);	// 画面中央にいる場合はスタミナを消費
-			score.AddScore(1);			// スコアを加算
+			score.AddScore(1 * gameWave.GetScoreMultiplier());			// スコアを加算
 		}
 	}
 
@@ -259,7 +259,7 @@ bool EnemyBase::IsInScreenCenter(float targetRadiusPixels)
 	return distFromCenter <= targetRadiusPixels;
 }
 
-void EnemyBase::AttackToPlayer(VECTOR playerPos, Score& score)
+void EnemyBase::AttackToPlayer(VECTOR playerPos, Score& score, GameWave& gameWave)
 {
 	// 攻撃処理
 	VECTOR toPlayer = VSub(playerPos, _pos);
@@ -273,7 +273,7 @@ void EnemyBase::AttackToPlayer(VECTOR playerPos, Score& score)
 		{
 			_isAttacking = true;		// 攻撃中フラグを立てる
 			_stamina.Consume(9999);		// スタミナを強制的に消費して消滅させる
-			score.SubtractScore(100);	// プレイヤーのスコアを減らす
+			score.SubtractScore(100 * gameWave.GetScoreMultiplier());	// プレイヤーのスコアを減らす
 		}
 	}
 }

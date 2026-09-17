@@ -6,6 +6,7 @@
 #include "Stamina.h"
 #include "Score.h"
 #include "Timer.h"
+#include "GameWave.h"
 
 struct EnemyData 
 {
@@ -24,7 +25,7 @@ public:
 	virtual ~EnemyBase() = default;
 
 	virtual void Initialize(const Map& map);
-	virtual void Update(const Map& map, VECTOR playerPos, Score& score);
+	virtual void Update(const Map& map, VECTOR playerPos, Score& score, GameWave& gameWave);
 	virtual void Render();
 
 	// A*経路探索のセットアップ
@@ -34,7 +35,7 @@ public:
 	bool IsInScreenCenter(float targetRadiusPixels = 100.0f);
 
 	// プレイヤーに攻撃する処理
-	void AttackToPlayer(VECTOR playerPos, Score& score);
+	void AttackToPlayer(VECTOR playerPos, Score& score, GameWave& gameWave);
 
 	// 攻撃中かどうかを返す
 	bool IsAttacking() const { return _isAttacking; }
