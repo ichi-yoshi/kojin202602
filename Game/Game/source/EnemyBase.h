@@ -5,6 +5,7 @@
 #include "AStarPathfinder.h"
 #include "Stamina.h"
 #include "Score.h"
+#include "Timer.h"
 
 struct EnemyData 
 {
@@ -19,7 +20,7 @@ struct EnemyData
 class EnemyBase
 {
 public:
-	EnemyBase(const EnemyData&data);
+	EnemyBase(const EnemyData& data);
 	virtual ~EnemyBase() = default;
 
 	virtual void Initialize(const Map& map);
@@ -34,6 +35,12 @@ public:
 
 	// プレイヤーに攻撃する処理
 	void AttackToPlayer(VECTOR playerPos, Score& score);
+
+	// 攻撃中かどうかを返す
+	bool IsAttacking() const { return _isAttacking; }
+
+	// 攻撃中フラグをリセットする
+	bool ResetAttacking() { _isAttacking = false; return _isAttacking; }
 
 	// スタミナが尽きているかどうかを返す
 	bool IsExhausted() const { return _stamina.IsExhausted(); }
@@ -52,12 +59,14 @@ protected:
 	float _speed;		// 敵の移動速度
 	int _imageHandle;	// 敵の画像ハンドル
 	int _recalcTimer;	// 経路再計算のタイマー
+	bool _isAttacking;
 
 	AStarPathfinder _pathfinder;
 	std::vector<VECTOR> _path;
 	int _pathIndex;
 	Stamina _stamina;
 	EnemyData _param;
+	Timer FlashTimer;
 
 protected:
 	static constexpr float CELL_SIZE = 15.0f;		// A*探索のグリッド1マスのサイズ

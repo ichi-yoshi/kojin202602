@@ -109,6 +109,7 @@ void GameWave::Render() const
 	int fillColor = Color::Green();
 	const char* waveText = "";
 
+	// ウェーブ番号の表示
 	if(_isInterval) 
 	{
 		remainingRate = 1.0f - _intervalTimer.GetProgress();

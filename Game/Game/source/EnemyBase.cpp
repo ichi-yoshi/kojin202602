@@ -16,6 +16,7 @@ EnemyBase::EnemyBase(const EnemyData& data)
 	_imageHandle = ResourceManager::GetInstance().GetImage(_param.imagePath);
 	_pathIndex = 0;
 	_recalcTimer = 0;
+	_isAttacking = false;
 
 	// スタミナの初期化（最大値、回復率、消費率）
 	_stamina.Initialize(_param.staminaMax, _param.staminaRecoveryRate, _param.staminaCostRate);
@@ -270,6 +271,7 @@ void EnemyBase::AttackToPlayer(VECTOR playerPos, Score& score)
 		// プレイヤーとの距離が一定範囲内であれば攻撃成功とする
 		if(distToPlayer <= REACH_DISTANCE)
 		{
+			_isAttacking = true;		// 攻撃中フラグを立てる
 			_stamina.Consume(9999);		// スタミナを強制的に消費して消滅させる
 			score.SubtractScore(100);	// プレイヤーのスコアを減らす
 		}
@@ -280,55 +282,56 @@ void EnemyBase::Render()
 {
 	if(_imageHandle == -1) return;
 
-	if(_stamina.IsExhausted()) return;
-
-	// 敵キャラの位置に画像（ビルボード）を描画
-	VECTOR renderPos = _pos;
-	renderPos.y += GameConfig::ENEMY_HEIGHT;
-
-	//static float blinkTimer = 0.0f;
-	//blinkTimer += 1.1f;	// 点滅速度を調整
-
-	//// 点滅のアルファ値を計算（0.0〜1.0の範囲）
-	//float alphaRatio = (sinf(blinkTimer) + 1.0f) * 0.5f;
-	//int alpha = static_cast<int>(alphaRatio * Alpha::Max);
-
-	// 画面中央にいる場合は半透明で描画
-	/*if(IsInScreenCenter(GameConfig::LOOK_CENTER_RADIUS))
+	if(!_stamina.IsExhausted())
 	{
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
-	}*/
+		// 敵キャラの位置に画像（ビルボード）を描画
+		VECTOR renderPos = _pos;
+		renderPos.y += GameConfig::ENEMY_HEIGHT;
+
+		//static float blinkTimer = 0.0f;
+		//blinkTimer += 1.1f;	// 点滅速度を調整
+
+		//// 点滅のアルファ値を計算（0.0〜1.0の範囲）
+		//float alphaRatio = (sinf(blinkTimer) + 1.0f) * 0.5f;
+		//int alpha = static_cast<int>(alphaRatio * Alpha::Max);
+
+		// 画面中央にいる場合は半透明で描画
+		/*if(IsInScreenCenter(GameConfig::LOOK_CENTER_RADIUS))
+		{
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+		}*/
 
 
-	// 3D空間上の敵の座標に、カメラを常に向く画像（ビルボード）を描画する
-	DrawBillboard3D(renderPos, 0.5f, 0.5f, 200.0f, 0.0f, _imageHandle, TRUE);
+		// 3D空間上の敵の座標に、カメラを常に向く画像（ビルボード）を描画する
+		DrawBillboard3D(renderPos, 0.5f, 0.5f, 200.0f, 0.0f, _imageHandle, TRUE);
 
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	
-	VECTOR headPos = _pos;
-	headPos.y += GameConfig::ENEMY_HEIGHT + 30.0f;
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	// 3D空間の頭上座標を2Dスクリーン座標に変換
-	VECTOR screenPos = ConvWorldPosToScreenPos(headPos);
+		VECTOR headPos = _pos;
+		headPos.y += GameConfig::ENEMY_HEIGHT + 30.0f;
 
-	// カメラの前面（画面内）に映っている場合のみ描画
-	if(screenPos.z >= 0.0f && screenPos.z <= 1.0f)
-	{
-		// スタミナ割合を計算 (0.0 ～ 1.0)
-		float staminaRatio = _stamina.GetCurrent() / _stamina.GetMax();
+		// 3D空間の頭上座標を2Dスクリーン座標に変換
+		VECTOR screenPos = ConvWorldPosToScreenPos(headPos);
 
-		// スタミナゲージの描画位置とサイズ
-		int gaugeColor = Color::Green();
-		if(staminaRatio < 0.3f) gaugeColor = Color::Red();
-		else if(staminaRatio < 0.6f) gaugeColor = Color::Yellow();
-		
-		// スタミナゲージの描画
-		Gauge staminaGauge;
-		staminaGauge.SetSize(60, 8);
-		staminaGauge.SetPosition(static_cast<int>(screenPos.x - 60 / 2), static_cast<int>(screenPos.y));
-		staminaGauge.SetColor(gaugeColor, Color::White(), Color::Dim());
-		staminaGauge.Render(staminaRatio);
+		// カメラの前面（画面内）に映っている場合のみ描画
+		if(screenPos.z >= 0.0f && screenPos.z <= 1.0f)
+		{
+			// スタミナ割合を計算 (0.0 ～ 1.0)
+			float staminaRatio = _stamina.GetCurrent() / _stamina.GetMax();
 
+			// スタミナゲージの描画位置とサイズ
+			int gaugeColor = Color::Green();
+			if(staminaRatio < 0.3f) gaugeColor = Color::Red();
+			else if(staminaRatio < 0.6f) gaugeColor = Color::Yellow();
+
+			// スタミナゲージの描画
+			Gauge staminaGauge;
+			staminaGauge.SetSize(60, 8);
+			staminaGauge.SetPosition(static_cast<int>(screenPos.x - 60 / 2), static_cast<int>(screenPos.y));
+			staminaGauge.SetColor(gaugeColor, Color::White(), Color::Dim());
+			staminaGauge.Render(staminaRatio);
+
+		}
 	}
 
 	//デバッグ用

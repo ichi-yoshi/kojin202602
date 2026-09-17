@@ -9,6 +9,7 @@
 #include "GameTitle.h"
 #include "GameResult.h"
 #include "GameLoad.h"
+#include "DamageEffect.h"
 #include <memory>
 
 // モード
@@ -31,6 +32,7 @@ protected:
 	GameTitle _title;		// タイトル画面の管理
 	GameResult _gameResult; // ゲーム結果画面の管理
 	GameLoad _gameLoad;		// ロード画面の管理
+	DamageEffect _dEffect;	// ダメージエフェクト
 
 	// ゲームのロード状態を管理する列挙型
 	enum class LoadState 

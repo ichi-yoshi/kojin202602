@@ -111,6 +111,13 @@ bool ModeGame::Process()
             enemy->Update(_map, _player.GetPosition(), _score);
             enemy->AttackToPlayer(_player.GetPosition(), _score);
             enemy->EnenmyCollision(_enemies); // 敵同士の衝突判定
+
+			if(enemy->IsAttacking())
+			{
+				// プレイヤーが攻撃されている場合、ダメージエフェクトを発動
+				_dEffect.Trigger();
+				enemy->ResetAttacking(); // 攻撃状態をリセット
+			}
         }
     }
     
@@ -120,6 +127,7 @@ bool ModeGame::Process()
 
     // ウェーブとタイマーの更新
     _gameWave.Update(deltaTime);
+	_dEffect.Update(deltaTime);
 
 	// ゲームクリア判定
 	if(_gameWave.IsGameCleared())   // すべてのウェーブをクリアした場合
@@ -239,5 +247,8 @@ bool ModeGame::Render()
         DrawFormatString(10, 300, Color::White(), "WAVE : %d", _gameWave.GetCurrentWaveNumber());
         DrawFormatString(10, 330, Color::White(), "TIME : %.1f sec", _gameWave.GetRemainingTime());
     }
+
+	_dEffect.Render();
+
     return true;
 }
